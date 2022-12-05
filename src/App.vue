@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app v-if="authenticated">
     <AppContent />
   </v-app>
 </template>
@@ -15,7 +15,8 @@ export default {
   data: () => ({
     authenticated: true,
   }),
-  beforeMount() {
+  mounted() {
+    var _self = this;
     firebase.auth().onAuthStateChanged((user) => {
       // if not logged in redirect to login page
       if (!user) {
@@ -26,6 +27,9 @@ export default {
       else if (this.$route.path == '/login' || this.$route.path == '/register') {
         this.authenticated = true;
         this.$router.replace('/');
+      }
+      else { // User loged in, call the HomeView getLists method
+        this.$root.$emit('getLists');
       }
     })
   },

@@ -29,40 +29,53 @@
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
-        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-            <template v-slot:activator="{ on, attrs }">
-                <v-fab-transition>
-                    <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
-                        <v-icon>mdi-plus</v-icon>
-                    </v-btn>
-                </v-fab-transition>
-            </template>
-            <v-container fluid pa-0>
-                <v-row justify="center" style="height:100vh" dense>
-                    <v-col cols="12" lg="10" md="10"
-                        class="fill-height d-flex flex-column justify-center align-center">
-                        <v-card class="create-card">
-                            <v-row>
-                                <v-text-field rounded class="justify-center" label="New List" outlined></v-text-field>
-                            </v-row>
-                            <v-btn color="white" @click="dialog = false">
-                                Cancel
-                            </v-btn>
-                            <v-btn color="green" @click="dialog = false">
-                                Create
-                            </v-btn>
-                        </v-card>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-dialog>
+        <v-container fluid grid-list-md>
+            <v-layout row wrap>
+                <v-flex v-for="list in lists" :key="list.id" xs12 md6 lg6 pa-3>
+                    <List v-bind:list="list"></List>
+                </v-flex>
+            </v-layout>
+        </v-container>
+        <v-layout row justify-center>
+            <v-dialog v-model="dialog" max-width="600px">
+                <template v-slot:activator="{ on, attrs }">
+                    <v-fab-transition>
+                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
+                            <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                    </v-fab-transition>
+                </template>
+                <v-card>
+                    <v-card-text>
+                        <v-container grid-list-md>
+                            <v-layout wrap>
+                                <v-text-field v-model="createListName" class="create-list-name font-weight-bold text-h5"
+                                    autofocus label="New List" required>
+                                </v-text-field>
+                            </v-layout>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-col class="text-left">
+                            <v-btn color="blue darken-1" @click.stop="resetCreateModal">Close</v-btn>
+                        </v-col>
+                        <v-btn color="green darken-1" @click.stop="createList">Create</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-layout>
     </div>
 </template>
 
 <script>
 import firebase from "firebase";
+import List from "../components/List.vue";
 export default {
-    name: "Profile",
+    name: "Home",
+    components: {
+        List
+    },
+    props: ['artists'],
     data() {
         return {
             dialog: false,
@@ -70,6 +83,11 @@ export default {
             sound: true,
             widgets: false,
             drawer: null,
+            createListName: '',
+            lists: [],
+            listObj: {
+                title: ""
+            },
             items: [
                 { title: 'Lists', icon: 'mdi-clipboard-list-outline' },
                 { title: 'Trash', icon: 'mdi-delete' },
@@ -77,9 +95,53 @@ export default {
             ],
         }
     },
+    mounted() {
+        this.$root.$on('getLists', () => {
+            this.getLists()
+        });
+    },
     methods: {
         Logout() {
             firebase.auth().signOut();
+        },
+        createList() {
+            console.log('begin')
+            try {
+                firebase
+                    .firestore()
+                    .collection("users")
+                    .doc(firebase.auth().currentUser.uid)
+                    .collection("lists")
+                    .add({
+                        title: this.createListName,
+                        // createdAt: new Date(),
+                        // isCompleted: false,
+                    })
+                this.resetCreateModal();
+            }
+            catch (err) {
+                console.log(err)
+            }
+        },
+        async getLists() {
+            var listsRef = await firebase
+                .firestore()
+                .collection("users")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("lists");
+
+            listsRef.onSnapshot(snap => {
+                this.list = [];
+                snap.forEach(doc => {
+                    var list = doc.data();
+                    list.id = doc.id;
+                    this.lists.push(list);
+                });
+            });
+        },
+        resetCreateModal() {
+            this.dialog = false;
+            this.createListName = '';
         }
     },
 }
@@ -87,9 +149,10 @@ export default {
 
 <style>
 .fab {
-    bottom: 15px !important;
+    bottom: 35px !important;
 }
-.create-card{
+
+.create-card {
     box-shadow: none !important;
 }
 </style>
