@@ -96,9 +96,11 @@ export default {
         }
     },
     mounted() {
-        this.$root.$on('getLists', () => {
-            this.getLists()
-        });
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                this.getLists();
+            }
+        })
     },
     methods: {
         Logout() {
@@ -132,6 +134,7 @@ export default {
 
             listsRef.onSnapshot(snap => {
                 this.list = [];
+                this.lists = [];
                 snap.forEach(doc => {
                     var list = doc.data();
                     list.id = doc.id;

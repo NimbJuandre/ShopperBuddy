@@ -28,9 +28,6 @@ export default {
         this.authenticated = true;
         this.$router.replace('/');
       }
-      else { // User loged in, call the HomeView getLists method
-        this.$root.$emit('getLists');
-      }
     })
   },
   methods: {
