@@ -10,8 +10,8 @@
                 <v-icon>mdi-account-plus</v-icon>
             </v-btn>
         </v-app-bar>
-        <v-layout row justify-center>
-            <v-dialog v-if="showFab" v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+        <v-row justify="center">
+            <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
                 <template v-slot:activator="{ on, attrs }">
                     <v-fab-transition>
                         <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
@@ -19,20 +19,19 @@
                         </v-btn>
                     </v-fab-transition>
                 </template>
-                <v-toolbar dark color="primary">
-                    <v-btn icon dark @click="dialog = false">
-                        <v-icon>mdi-arrow-left</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>Settings</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-toolbar-items>
-                        <v-btn dark text @click="dialog = false">
-                            Save
+                <v-card>
+                    <v-toolbar dark color="primary">
+                        <v-btn icon dark @click="dialog = false">
+                            <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
-                    </v-toolbar-items>
-                </v-toolbar>
+                        <!-- <v-spacer></v-spacer> -->
+                        <v-toolbar-items>
+                            <v-text-field v-model="newListItem" class="mt-1 text-h6" label="Add new Item" single-line rounded></v-text-field>
+                        </v-toolbar-items>
+                    </v-toolbar>
+                </v-card>
             </v-dialog>
-        </v-layout>
+        </v-row>
     </div>
 </template>
 <script>
@@ -41,11 +40,8 @@ export default {
     data() {
         return {
             dialog: false,
-            showFab: false
+            newListItem: ''
         }
-    },
-    mounted() {
-        this.showFab = true
     },
     methods: {
         closeList() {
@@ -62,6 +58,6 @@ export default {
 </script>
 <style>
 .fab {
-  bottom: 35px !important;
+    bottom: 35px !important;
 }
 </style>

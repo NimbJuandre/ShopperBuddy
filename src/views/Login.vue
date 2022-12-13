@@ -38,9 +38,6 @@
     </v-main>
   </v-app>
 </template>
-
-
-
 <script>
 import Google from "../components/LoginProviders/Google.vue";
 import GitHub from "../components/LoginProviders/GitHub.vue";
@@ -51,7 +48,6 @@ export default {
   components: {
     Google,
     GitHub,
-    GitHub
   },
   data: () => ({
     email: null,
