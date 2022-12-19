@@ -18,7 +18,12 @@ const routes = [
     path: '/ListView',
     name: 'ListView',
     component: () => import('../views/ListView.vue')
-  }
+  },
+  // {
+  //   path: '/ListView/:id/edit',
+  //   name: 'ListView.edit',
+  //   component: () => import('../views/ListView.vue')
+  // },
 ];
 
 const router = new VueRouter({

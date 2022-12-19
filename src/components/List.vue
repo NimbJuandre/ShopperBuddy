@@ -1,7 +1,7 @@
 <template>
-    <v-card class="list-card pa-3" @click="openList" ripple outlined elevation="10">
+    <v-card v-if="list" class="list-card pa-3" @click="openList(list.id)" ripple outlined elevation="10">
         <v-card-title>
-            <h2>{{this.list.title}}</h2>
+            <h2>{{ list.title }}</h2>
             <v-spacer></v-spacer>
             <v-btn class="list-options" icon>
                 <v-icon>mdi-dots-vertical</v-icon>
@@ -26,9 +26,9 @@ export default {
     name: 'List',
     props: ['list'],
     methods: {
-        openList() {
-            this.$router.push({ path: '/ListView' })
-            
+        openList(id) {
+            this.$router.push({ path: '/ListView', query: { id: id } })
+            // this.$router.push({ path: '/ListView' })
         }
     }
 }

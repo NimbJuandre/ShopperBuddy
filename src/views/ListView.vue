@@ -1,10 +1,10 @@
 <template>
-    <div>
+    <div v-if="list">
         <v-app-bar elevation="0">
             <v-btn icon @click="closeList">
                 <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
-            <v-toolbar-title class="font-weight-bold">My Lists</v-toolbar-title>
+            <v-toolbar-title class="font-weight-bold">{{ list.title }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click="shareList">
                 <v-icon>mdi-account-plus</v-icon>
@@ -24,9 +24,9 @@
                         <v-btn icon dark @click="dialog = false">
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
-                        <!-- <v-spacer></v-spacer> -->
                         <v-toolbar-items>
-                            <v-text-field v-model="newListItem" class="mt-1 text-h6" label="Add new Item" single-line rounded></v-text-field>
+                            <v-text-field v-model="newListItem" class="mt-1 text-h6" label="Add new Item" single-line
+                                rounded></v-text-field>
                         </v-toolbar-items>
                     </v-toolbar>
                 </v-card>
@@ -35,15 +35,35 @@
     </div>
 </template>
 <script>
+import firebase from "firebase";
 export default {
     name: 'ListView',
     data() {
         return {
+            list: null,
             dialog: false,
             newListItem: ''
         }
     },
+    mounted() {
+        this.getLists(this.$route.query.id);
+    },
     methods: {
+        async getLists(id) {
+            var listsRef = await firebase
+                .firestore()
+                .collection("users")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("lists")
+                .doc(id);
+
+
+            listsRef.onSnapshot(snap => {
+                var list = snap.data()
+                list.id = snap.id
+                this.list = list;
+            });
+        },
         closeList() {
             this.$router.push({ path: '/' })
         },
