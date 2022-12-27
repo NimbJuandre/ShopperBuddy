@@ -14,21 +14,49 @@
             <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
                 <template v-slot:activator="{ on, attrs }">
                     <v-fab-transition>
-                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
+                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark
+                            absolute bottom right>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-fab-transition>
                 </template>
-                <v-card>
-                    <v-toolbar dark color="primary">
+                <v-card rounded="false">
+                    <v-toolbar class="item-add-toolbar" color="primary">
                         <v-btn icon dark @click="dialog = false">
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
-                        <v-toolbar-items>
-                            <v-text-field v-model="newListItem" class="mt-1 text-h6" label="Add new Item" single-line
-                                rounded></v-text-field>
-                        </v-toolbar-items>
+                        <v-toolbar-title class="toolbar-title pt-4 pl-1">
+                            <v-text-field v-model="newListItem" background-color="white" rounded clearable
+                                class="add-item-input mt-1 text-h6" label="Add new Item" single-line></v-text-field>
+                        </v-toolbar-title>
+
+                        <template v-slot:extension>
+                            <v-tabs v-model="tab" align-with-title>
+                                <v-tabs-slider color="white"></v-tabs-slider>
+                                <v-tab class="toolbar-tab">POPULAR</v-tab>
+                                <v-tab class="toolbar-tab">RECENT</v-tab>
+                            </v-tabs>
+                        </template>
                     </v-toolbar>
+
+                    <!-- create component -->
+                    <v-tabs-items v-model="tab">
+                        <v-tab-item>
+                            <ul v-if="items">
+                                <li v-for="item in items">
+                                    {{ item.name }}
+                                </li>
+                            </ul>
+                            <!-- <v-card flat>
+                                <v-card-text> POPULAR</v-card-text>
+                            </v-card> -->
+                        </v-tab-item>
+                        <v-tab-item>
+                            <v-card flat>
+                                <v-card-text> RECENT</v-card-text>
+                            </v-card>
+                        </v-tab-item>
+                    </v-tabs-items>
                 </v-card>
             </v-dialog>
         </v-row>
@@ -41,16 +69,19 @@ export default {
     data() {
         return {
             list: null,
+            items: [],
             dialog: false,
-            newListItem: ''
+            newListItem: '',
+            tab: null
         }
     },
-    mounted() {
-        this.getLists(this.$route.query.id);
+    async mounted() {
+        await this.getList(this.$route.query.id);
+        await this.getItems();
     },
     methods: {
-        async getLists(id) {
-            var listsRef = await firebase
+        async getList(id) {
+            var listRef = await firebase
                 .firestore()
                 .collection("users")
                 .doc(firebase.auth().currentUser.uid)
@@ -58,10 +89,23 @@ export default {
                 .doc(id);
 
 
-            listsRef.onSnapshot(snap => {
+            listRef.onSnapshot(snap => {
                 var list = snap.data()
                 list.id = snap.id
                 this.list = list;
+            });
+        },
+        async getItems() {
+            var itemsRef = await firebase
+                .firestore()
+                .collection("items");
+
+            itemsRef.onSnapshot(snap => {
+                snap.forEach(doc => {
+                    var item = doc.data();
+                    item.id = doc.id;
+                    this.items.push(item);
+                });
             });
         },
         closeList() {
@@ -79,5 +123,20 @@ export default {
 <style>
 .fab {
     bottom: 35px !important;
+}
+
+.item-add-toolbar {
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+}
+
+.toolbar-title {
+    width: 100% !important;
+}
+
+.toolbar-tab {
+    color: white !important;
 }
 </style>
