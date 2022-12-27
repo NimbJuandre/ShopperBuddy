@@ -14,8 +14,7 @@
             <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
                 <template v-slot:activator="{ on, attrs }">
                     <v-fab-transition>
-                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark
-                            absolute bottom right>
+                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-fab-transition>
@@ -42,14 +41,23 @@
                     <!-- create component -->
                     <v-tabs-items v-model="tab">
                         <v-tab-item>
-                            <ul v-if="items">
+                            <v-list v-if="items">
+                                <!-- <v-list-item-group v-model="selectedItem" color="primary"> -->
+                                <v-list-item v-for="(item, i) in items" :key="i">
+                                    <v-list-item-icon class="mr-0">
+                                        <v-icon class="item-icon" rounded large>mdi-plus</v-icon>
+                                    </v-list-item-icon>
+                                    <v-list-item-content>
+                                        <v-list-item-title v-text="item.name"></v-list-item-title>
+                                    </v-list-item-content>
+                                </v-list-item>
+                                <!-- </v-list-item-group> -->
+                            </v-list>
+                            <!-- <ul v-if="items">
                                 <li v-for="item in items">
                                     {{ item.name }}
                                 </li>
-                            </ul>
-                            <!-- <v-card flat>
-                                <v-card-text> POPULAR</v-card-text>
-                            </v-card> -->
+                            </ul> -->
                         </v-tab-item>
                         <v-tab-item>
                             <v-card flat>
@@ -138,5 +146,11 @@ export default {
 
 .toolbar-tab {
     color: white !important;
+}
+
+.item-icon {
+    border-radius: 25px;
+    background-color: lightgrey;
+    margin-right: 15px;
 }
 </style>
