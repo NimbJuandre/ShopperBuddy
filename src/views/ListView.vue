@@ -25,8 +25,9 @@
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
                         <v-toolbar-title class="toolbar-title pt-4 pl-1">
-                            <v-text-field v-model="newListItem" background-color="white" rounded clearable
-                                class="add-item-input mt-1 text-h6" label="Add new Item" single-line></v-text-field>
+                            <v-text-field v-model="searchText" @keyup="search()" background-color="white" rounded
+                                clearable class="add-item-input mt-1 text-h6" label="Add new Item"
+                                single-line></v-text-field>
                         </v-toolbar-title>
 
                         <template v-slot:extension>
@@ -38,26 +39,11 @@
                         </template>
                     </v-toolbar>
 
-                    <!-- create component -->
                     <v-tabs-items v-model="tab">
                         <v-tab-item>
-                            <v-list v-if="items">
-                                <!-- <v-list-item-group v-model="selectedItem" color="primary"> -->
-                                <v-list-item v-for="(item, i) in items" :key="i">
-                                    <v-list-item-icon class="mr-0">
-                                        <v-icon class="item-icon" rounded large>mdi-plus</v-icon>
-                                    </v-list-item-icon>
-                                    <v-list-item-content>
-                                        <v-list-item-title v-text="item.name"></v-list-item-title>
-                                    </v-list-item-content>
-                                </v-list-item>
-                                <!-- </v-list-item-group> -->
+                            <v-list v-for="(item, i) in items" :key="i">
+                                <Item v-bind:item="item"></Item>
                             </v-list>
-                            <!-- <ul v-if="items">
-                                <li v-for="item in items">
-                                    {{ item.name }}
-                                </li>
-                            </ul> -->
                         </v-tab-item>
                         <v-tab-item>
                             <v-card flat>
@@ -72,14 +58,19 @@
 </template>
 <script>
 import firebase from "firebase";
+import Item from "../components/Item.vue";
 export default {
     name: 'ListView',
+    components: {
+        Item
+    },
     data() {
         return {
             list: null,
             items: [],
+            originalItems: [],
             dialog: false,
-            newListItem: '',
+            searchText: '',
             tab: null
         }
     },
@@ -114,7 +105,25 @@ export default {
                     item.id = doc.id;
                     this.items.push(item);
                 });
+                this.originalItems = this.items;
             });
+        },
+        async search() {
+            let searchItems = [];
+
+            if (this.searchText.length == 0) {
+                this.items = this.originalItems
+                return;
+            }
+
+            searchItems.push({ name: this.searchText })
+            this.items.forEach(item => {
+                if (item.name.includes(this.searchText)) {
+                    searchItems.push(item)
+                }
+            });
+
+            this.items = searchItems;
         },
         closeList() {
             this.$router.push({ path: '/' })
@@ -150,6 +159,7 @@ export default {
 
 .item-icon {
     border-radius: 25px;
+    color: white !important;
     background-color: lightgrey;
     margin-right: 15px;
 }

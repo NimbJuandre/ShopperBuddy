@@ -1,35 +1,22 @@
 <template>
-    <v-card v-if="list" class="list-card pa-3" @click="openList(list.id)" ripple outlined elevation="10">
-        <v-card-title>
-            <h2>{{ list.title }}</h2>
-            <v-spacer></v-spacer>
-            <v-btn class="list-options" icon>
-                <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
-        </v-card-title>
-
-        <v-card-text>
-            <v-row>
-                <v-col cols="11">
-                    <v-progress-linear rounded color="green" background-color="grey lighten-1" height="10">
-                    </v-progress-linear>
-                </v-col>
-                <v-col class="pa-0 mt-2" cols="1">
-                    <label class="progress-text font-weight-bold">1/2</label>
-                </v-col>
-            </v-row>
-        </v-card-text>
-    </v-card>
+    <v-list-item>
+        <v-list-item-icon class="mr-0">
+            <v-icon class="item-icon" rounded large>mdi-plus</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+            <v-list-item-title v-text="item.name"></v-list-item-title>
+        </v-list-item-content>
+    </v-list-item>
 </template>
 <script>
 export default {
-    name: 'List',
-    props: ['list'],
+    name: 'Item',
+    props: ['item'],
     methods: {
-        openList(id) {
-            this.$router.push({ path: '/ListView', query: { id: id } })
-            // this.$router.push({ path: '/ListView' })
-        }
+        // openList(id) {
+        //     this.$router.push({ path: '/ListView', query: { id: id } })
+        //     // this.$router.push({ path: '/ListView' })
+        // }
     }
 }
 </script>
