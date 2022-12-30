@@ -25,9 +25,9 @@
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
                         <v-toolbar-title class="toolbar-title pt-4 pl-1">
-                            <v-text-field v-model="searchText" @keyup="search()" background-color="white" rounded
-                                clearable class="add-item-input mt-1 text-h6" label="Add new Item"
-                                single-line></v-text-field>
+                            <v-text-field v-model="searchText" @keyup="search()" @click:clear="resetSearchItems()"
+                                background-color="white" rounded clearable class="add-item-input mt-1 text-h6"
+                                label="Add new Item" single-line></v-text-field>
                         </v-toolbar-title>
 
                         <template v-slot:extension>
@@ -112,18 +112,23 @@ export default {
             let searchItems = [];
 
             if (this.searchText.length == 0) {
-                this.items = this.originalItems
+                this.items = this.originalItems;
                 return;
             }
 
-            searchItems.push({ name: this.searchText })
-            this.items.forEach(item => {
-                if (item.name.includes(this.searchText)) {
+            searchItems.push({ name: this.searchText, newItem: true });
+
+            for (let index = 0; index < this.originalItems.length; ++index) {
+                let item = this.originalItems[index];
+
+                if (item.name.includes(this.searchText))
                     searchItems.push(item)
-                }
-            });
+            }
 
             this.items = searchItems;
+        },
+        resetSearchItems() {
+            this.items = this.originalItems;
         },
         closeList() {
             this.$router.push({ path: '/' })
