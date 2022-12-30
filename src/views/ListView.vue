@@ -42,7 +42,7 @@
                     <v-tabs-items v-model="tab">
                         <v-tab-item>
                             <v-list v-for="(item, i) in items" :key="i">
-                                <Item v-bind:item="item"></Item>
+                                <Item v-bind:item="item" @afterItemCreated="afterItemCreated"></Item>
                             </v-list>
                         </v-tab-item>
                         <v-tab-item>
@@ -121,11 +121,15 @@ export default {
             for (let index = 0; index < this.originalItems.length; ++index) {
                 let item = this.originalItems[index];
 
-                if (item.name.includes(this.searchText))
+                if (item.name.toLowerCase().includes(this.searchText.toLowerCase()))
                     searchItems.push(item)
             }
 
             this.items = searchItems;
+        },
+        afterItemCreated(addedItem) {
+            this.items.shift();
+            this.searchText = '';
         },
         resetSearchItems() {
             this.items = this.originalItems;
@@ -135,10 +139,7 @@ export default {
         },
         shareList() {
 
-        },
-        addItemToList() {
-            this.$router.push({ path: '/' })
-        }
+        },        
     }
 }
 </script>
@@ -162,10 +163,4 @@ export default {
     color: white !important;
 }
 
-.item-icon {
-    border-radius: 25px;
-    color: white !important;
-    background-color: lightgrey;
-    margin-right: 15px;
-}
 </style>
