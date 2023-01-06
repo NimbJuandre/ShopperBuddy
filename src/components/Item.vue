@@ -1,7 +1,8 @@
 <template>
     <v-list-item class="item" ripple @click="addItem(item)">
         <v-list-item-icon class="mr-0">
-            <v-icon class="item-icon" :class='{ "rotate": selected }' rounded large>mdi-plus</v-icon>
+            <v-icon class="item-icon" :class='{ "rotate": selected }' v-bind:style="{ transform: `rotate(${deg}deg)` }"
+                rounded large>mdi-plus</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
             <v-list-item-title v-text="item.name"></v-list-item-title>
@@ -25,6 +26,7 @@ export default {
     data() {
         return {
             selected: false,
+            deg: 0,
             count: 0
         }
     },
@@ -51,14 +53,17 @@ export default {
         },
         selectItemToAdd(item) {
             this.selected = true;
+            this.deg += 360
             this.count++;
         },
         deselectItemToAdd() {
-            this.selected = !this.selected;
+            console.log(this.deg)
+            this.selected = !this.selected;           
             this.count = 0;
         },
         minusItemToAdd() {
             this.count--;
+            this.deg -= 360;
         }
     }
 }
