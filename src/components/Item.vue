@@ -6,9 +6,15 @@
         <v-list-item-content>
             <v-list-item-title v-text="item.name"></v-list-item-title>
         </v-list-item-content>
-        <v-list-item-icon v-if="selected" v-on:click.stop="deselectItemToAdd">
-            <v-icon class="remove-icon" large>mdi-close</v-icon>
-        </v-list-item-icon>
+        <div v-if="selected">
+            <v-list-item-icon v-if="count <= 1" v-on:click.stop="deselectItemToAdd">
+                <v-icon class="remove-icon" large>mdi-close</v-icon>
+            </v-list-item-icon>
+            <v-list-item-icon class="item-count" v-else v-on:click.stop="minusItemToAdd">
+                {{ count }}
+                <v-icon class="remove-icon" large>mdi-minus</v-icon>
+            </v-list-item-icon>
+        </div>
     </v-list-item>
 </template>
 <script>
@@ -18,7 +24,8 @@ export default {
     props: ['item'],
     data() {
         return {
-            selected: false
+            selected: false,
+            count: 0
         }
     },
     methods: {
@@ -43,12 +50,15 @@ export default {
             this.$emit('afterItemCreated', data)
         },
         selectItemToAdd(item) {
-            this.selected = !this.selected;
-            //this.$refs.itemIcon.
+            this.selected = true;
+            this.count++;
         },
         deselectItemToAdd() {
             this.selected = !this.selected;
-            console.log('deselected', this.selected)
+            this.count = 0;
+        },
+        minusItemToAdd() {
+            this.count--;
         }
     }
 }
@@ -62,6 +72,10 @@ export default {
     border-radius: 0px;
     color: #f71b1b !important;
     transition: all .3s ease-in-out !important;
+}
+
+.item-count {
+    align-items: center;
 }
 
 .item-icon {

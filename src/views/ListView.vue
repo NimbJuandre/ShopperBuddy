@@ -127,7 +127,7 @@ export default {
 
             this.items = searchItems;
         },
-        afterItemCreated(addedItem) {
+        afterItemCreated() {
             this.items.shift();
             this.searchText = '';
         },
