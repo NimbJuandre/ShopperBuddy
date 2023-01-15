@@ -1,14 +1,14 @@
 <template>
     <v-list-item class="item" ripple @click="addItem(item)">
         <v-list-item-icon class="mr-0">
-            <v-icon class="item-icon" :class='{ "rotate": selected }' v-bind:style="{ transform: `rotate(${deg}deg)` }"
+            <v-icon class="item-icon" :class='{ "rotate": item.selected }' v-bind:style="{ transform: `rotate(${deg}deg)` }"
                 rounded large>mdi-plus</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
             <v-list-item-title v-text="item.name"></v-list-item-title>
         </v-list-item-content>
-        <div v-if="selected">
-            <v-list-item-icon v-if="count <= 1" v-on:click.stop="deselectItemToAdd">
+        <div v-if="item.selected">
+            <v-list-item-icon v-if="count <= 1" v-on:click.stop="deselectItem(item)">
                 <v-icon class="remove-icon" large>mdi-close</v-icon>
             </v-list-item-icon>
             <v-list-item-icon class="item-count" v-else v-on:click.stop="minusItemToAdd">
@@ -25,7 +25,7 @@ export default {
     props: ['item'],
     data() {
         return {
-            selected: false,
+            // selected: false,
             deg: 0,
             count: 0
         }
@@ -49,17 +49,22 @@ export default {
                 .collection("items")
                 .add(data);
 
-            this.$emit('afterItemCreated', data)
+            this.$emit('afterItemCreated', data);
         },
         selectItemToAdd(item) {
-            this.selected = true;
+            //item.selected = true;
             this.deg += 360
             this.count++;
+
+            this.$emit('selectItem', item);
         },
-        deselectItemToAdd() {
+        deselectItem(item) {
             console.log(this.deg)
-            this.selected = !this.selected;           
+            //item.selected = !item.selected;           
             this.count = 0;
+            this.deg -= 360;
+
+            this.$emit('deselectItem', item);
         },
         minusItemToAdd() {
             this.count--;
@@ -88,7 +93,7 @@ export default {
     color: white !important;
     background-color: lightgrey;
     margin-right: 15px;
-    transition: all .3s ease-in-out !important;
+    transition: all .4s ease-in-out !important;
 }
 
 .item-icon.rotate {

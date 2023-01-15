@@ -42,7 +42,9 @@
                     <v-tabs-items v-model="tab">
                         <v-tab-item>
                             <v-list v-for="(item, i) in items" :key="i">
-                                <Item v-bind:item="item" @afterItemCreated="afterItemCreated"></Item>
+                                <Item v-bind:item="item" @afterItemCreated="afterItemCreated" @selectItem="selectItem"
+                                    @deselectItem="deselectItem">
+                                </Item>
                             </v-list>
                         </v-tab-item>
                         <v-tab-item>
@@ -52,6 +54,11 @@
                         </v-tab-item>
                     </v-tabs-items>
                 </v-card>
+                <v-fab-transition>
+                    <v-btn class="fab" color="primary" @click="dialog = false" fab dark fixed bottom right>
+                        <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                </v-fab-transition>
             </v-dialog>
         </v-row>
     </div>
@@ -103,7 +110,8 @@ export default {
                 snap.forEach(doc => {
                     var item = doc.data();
                     item.id = doc.id;
-                    this.items.push(item);
+                    item.selected = false,
+                        this.items.push(item);
                 });
                 this.originalItems = this.items;
             });
@@ -116,7 +124,8 @@ export default {
                 return;
             }
 
-            searchItems.push({ name: this.searchText, newItem: true });
+            if (this.originalItems.map(n => n.name.toLowerCase()).indexOf(this.searchText.toLowerCase()) === -1)
+                searchItems.push({ name: this.searchText, newItem: true });
 
             for (let index = 0; index < this.originalItems.length; ++index) {
                 let item = this.originalItems[index];
@@ -131,6 +140,13 @@ export default {
             this.items.shift();
             this.searchText = '';
         },
+        selectItem(item) {
+            var item = this.items.find(i => i.id === item.id);
+            this.items.find(i => i.id === item.id).selected = true;
+        },
+        deselectItem(item) {
+            this.items.find(i => i.id === item.id).selected = false;
+        },
         resetSearchItems() {
             this.items = this.originalItems;
         },
@@ -139,7 +155,7 @@ export default {
         },
         shareList() {
 
-        },        
+        },
     }
 }
 </script>
@@ -162,5 +178,4 @@ export default {
 .toolbar-tab {
     color: white !important;
 }
-
 </style>
