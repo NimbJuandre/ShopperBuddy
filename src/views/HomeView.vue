@@ -40,7 +40,7 @@
             <v-dialog v-model="dialog" max-width="600px">
                 <template v-slot:activator="{ on, attrs }">
                     <v-fab-transition>
-                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
+                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark fixed bottom right>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-fab-transition>

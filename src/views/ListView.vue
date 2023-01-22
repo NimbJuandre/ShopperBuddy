@@ -55,7 +55,7 @@
                     </v-tabs-items>
                 </v-card>
                 <v-fab-transition>
-                    <v-btn class="fab" color="primary" @click="dialog = false" fab dark fixed bottom right>
+                    <v-btn class="fab" color="primary" @click="addItemsToList" fab dark fixed bottom right>
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                 </v-fab-transition>
@@ -124,13 +124,13 @@ export default {
                 return;
             }
 
-            if (this.originalItems.map(n => n.name.toLowerCase()).indexOf(this.searchText.toLowerCase()) === -1)
+            if (this.originalItems.map(n => n.name.toLowerCase().trim()).indexOf(this.searchText.toLowerCase().trim()) === -1)
                 searchItems.push({ name: this.searchText, newItem: true });
 
             for (let index = 0; index < this.originalItems.length; ++index) {
                 let item = this.originalItems[index];
 
-                if (item.name.toLowerCase().includes(this.searchText.toLowerCase()))
+                if (item.name.toLowerCase().trim().includes(this.searchText.toLowerCase().trim()))
                     searchItems.push(item)
             }
 
@@ -142,7 +142,16 @@ export default {
         },
         selectItem(item) {
             var item = this.items.find(i => i.id === item.id);
-            this.items.find(i => i.id === item.id).selected = true;
+
+            item.selected = true;
+            item.count++;
+        },
+        addItemsToList() {
+            var selectedItems = this.items.filter(i => {
+                return i.selected === true
+            });
+
+            console.log(selectedItems);
         },
         deselectItem(item) {
             this.items.find(i => i.id === item.id).selected = false;

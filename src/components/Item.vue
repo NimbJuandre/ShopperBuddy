@@ -1,8 +1,8 @@
 <template>
     <v-list-item class="item" ripple @click="addItem(item)">
         <v-list-item-icon class="mr-0">
-            <v-icon class="item-icon" :class='{ "rotate": item.selected }' v-bind:style="{ transform: `rotate(${deg}deg)` }"
-                rounded large>mdi-plus</v-icon>
+            <v-icon class="item-icon" :class='{ "rotate": item.selected }'
+                v-bind:style="{ transform: `rotate(${deg}deg)` }" rounded large>mdi-plus</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
             <v-list-item-title v-text="item.name"></v-list-item-title>
@@ -25,7 +25,6 @@ export default {
     props: ['item'],
     data() {
         return {
-            // selected: false,
             deg: 0,
             count: 0
         }
@@ -39,7 +38,7 @@ export default {
         },
         async createNewItem(item) {
             const data = {
-                name: item.name,
+                name: item.name.trim(),
                 count: 0,
                 modifiedDate: new Date(),
             };
@@ -50,7 +49,7 @@ export default {
                 .add(data);
 
             this.$emit('afterItemCreated', data);
-        },
+        },        
         selectItemToAdd(item) {
             //item.selected = true;
             this.deg += 360
