@@ -146,12 +146,24 @@ export default {
             item.selected = true;
             item.count++;
         },
-        addItemsToList() {
+        async addItemsToList() {
+            var _self = this;
+
             var selectedItems = this.items.filter(i => {
                 return i.selected === true
             });
 
-            console.log(selectedItems);
+            var userItems = await firebase
+                .firestore()
+                .collection("users")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("lists")
+                .doc(this.list.id)
+
+            userItems.onSnapshot(snap => {
+                let list = snap.data()
+                list.items = selectedItems;
+            });
         },
         deselectItem(item) {
             this.items.find(i => i.id === item.id).selected = false;
