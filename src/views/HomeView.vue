@@ -116,6 +116,7 @@ export default {
                     .collection("lists")
                     .add({
                         title: this.createListName,
+                        items: []
                         // createdAt: new Date(),
                         // isCompleted: false,
                     })

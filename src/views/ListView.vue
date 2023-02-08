@@ -10,7 +10,36 @@
                 <v-icon>mdi-account-plus</v-icon>
             </v-btn>
         </v-app-bar>
+        <v-list>
+            <v-list-item v-for="(item, i) in list.items" :key="i" ripple>
+                <!-- <v-list-tile-action>
+                    <v-btn icon>
+                        <v-icon v-if="item.icon" color="pink">star</v-icon>
+                    </v-btn>
+                </v-list-tile-action> -->
+
+                <v-list-item-content>
+                    <v-list-item-title v-text="item.name"></v-list-item-title>
+                </v-list-item-content>
+
+                <!-- <v-list-tile-action>
+                    <v-list-tile-action-text>
+                        <v-menu bottom left>
+                            <v-btn icon slot="activator">
+                                <v-icon>more_vert</v-icon>
+                            </v-btn>
+                            <v-list>
+                                <v-list-tile>
+                                    <v-list-tile-title>Action</v-list-tile-title>
+                                </v-list-tile>
+                            </v-list>
+                        </v-menu>
+                    </v-list-tile-action-text>
+                </v-list-tile-action> -->
+            </v-list-item>
+        </v-list>
         <v-row justify="center">
+            <!-- Items Dialog -->
             <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
                 <template v-slot:activator="{ on, attrs }">
                     <v-fab-transition>
@@ -55,7 +84,7 @@
                     </v-tabs-items>
                 </v-card>
                 <v-fab-transition>
-                    <v-btn class="fab" color="primary" @click="addItemsToList" fab dark fixed bottom right>
+                    <v-btn class="fab" color="primary" @click="updateList" fab dark fixed bottom right>
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                 </v-fab-transition>
@@ -97,6 +126,9 @@ export default {
 
             listRef.onSnapshot(snap => {
                 var list = snap.data()
+                if (!list)
+                    return;
+
                 list.id = snap.id
                 this.list = list;
             });
@@ -146,24 +178,21 @@ export default {
             item.selected = true;
             item.count++;
         },
-        async addItemsToList() {
-            var _self = this;
-
+        async updateList() {
             var selectedItems = this.items.filter(i => {
                 return i.selected === true
             });
 
-            var userItems = await firebase
+            await firebase
                 .firestore()
                 .collection("users")
                 .doc(firebase.auth().currentUser.uid)
                 .collection("lists")
                 .doc(this.list.id)
+                .update({ items: selectedItems });
 
-            userItems.onSnapshot(snap => {
-                let list = snap.data()
-                list.items = selectedItems;
-            });
+            this.dialog = false;
+
         },
         deselectItem(item) {
             this.items.find(i => i.id === item.id).selected = false;
