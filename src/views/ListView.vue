@@ -10,32 +10,13 @@
                 <v-icon>mdi-account-plus</v-icon>
             </v-btn>
         </v-app-bar>
+        <ProgressBar v-bind:list="list">
+        </ProgressBar>
         <v-list>
             <v-list-item v-for="(item, i) in list.items" :key="i" ripple>
-                <!-- <v-list-tile-action>
-                    <v-btn icon>
-                        <v-icon v-if="item.icon" color="pink">star</v-icon>
-                    </v-btn>
-                </v-list-tile-action> -->
-
                 <v-list-item-content>
                     <v-list-item-title v-text="item.name"></v-list-item-title>
                 </v-list-item-content>
-
-                <!-- <v-list-tile-action>
-                    <v-list-tile-action-text>
-                        <v-menu bottom left>
-                            <v-btn icon slot="activator">
-                                <v-icon>more_vert</v-icon>
-                            </v-btn>
-                            <v-list>
-                                <v-list-tile>
-                                    <v-list-tile-title>Action</v-list-tile-title>
-                                </v-list-tile>
-                            </v-list>
-                        </v-menu>
-                    </v-list-tile-action-text>
-                </v-list-tile-action> -->
             </v-list-item>
         </v-list>
         <v-row justify="center">
@@ -95,10 +76,12 @@
 <script>
 import firebase from "firebase";
 import Item from "../components/Item.vue";
+import ProgressBar from "../components/ProgressBar.vue";
 export default {
     name: 'ListView',
     components: {
-        Item
+        Item,
+        ProgressBar
     },
     data() {
         return {
@@ -142,8 +125,8 @@ export default {
                 snap.forEach(doc => {
                     var item = doc.data();
                     item.id = doc.id;
-                    item.selected = false,
-                        this.items.push(item);
+                    item.selected = false;
+                    this.items.push(item);
                 });
                 this.originalItems = this.items;
             });

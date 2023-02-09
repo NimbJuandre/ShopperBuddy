@@ -35,25 +35,38 @@
 
         <v-card-text>
             <v-row>
-                <v-col cols="11">
-                    <v-progress-linear rounded color="green" background-color="grey lighten-1" height="10">
-                    </v-progress-linear>
-                </v-col>
-                <v-col class="pa-0 mt-2" cols="1">
-                    <label class="progress-text font-weight-bold">1/2</label>
-                </v-col>
+                <ProgressBar v-bind:list="list">
+                </ProgressBar>
             </v-row>
         </v-card-text>
     </v-card>
 </template>
 <script>
 import firebase from "firebase";
+import ProgressBar from "../components/ProgressBar.vue";
 export default {
     name: 'List',
     props: ['list'],
+    components: {
+        ProgressBar
+    },
     data() {
         return {
             dialog: false,
+        }
+    },
+    computed: {
+        // a computed getter
+        totalItemCompleted() {
+            // `this` points to the component instance
+            var completedItems = this.list.items.filter(i => i.isCompleted).length;
+            return completedItems
+        },
+        progressBarPercentage() {
+            return parseInt(Math.round((this.list.items.length / this.totalItemCompleted) * 100));
+        },
+        progressBarText() {
+            return `${this.totalItemCompleted}/${this.list.items.length}`;
         }
     },
     methods: {

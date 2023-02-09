@@ -38,6 +38,10 @@ export default {
   width: 100%;
 }
 
+.theme--light.v-app-bar.v-toolbar.v-sheet{
+  background-color: #FFFFFF !important;
+}
+
 .routerlink {
   text-decoration: none;
   color: inherit !important;

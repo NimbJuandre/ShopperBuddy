@@ -41,6 +41,7 @@ export default {
                 name: item.name.trim(),
                 count: 0,
                 modifiedDate: new Date(),
+                isCompleted: false
             };
 
             await firebase

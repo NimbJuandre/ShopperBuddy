@@ -116,9 +116,8 @@ export default {
                     .collection("lists")
                     .add({
                         title: this.createListName,
-                        items: []
+                        items: [],
                         // createdAt: new Date(),
-                        // isCompleted: false,
                     })
                 this.resetCreateModal();
             }
