@@ -1,19 +1,19 @@
 <template>
-    <div>
-        <v-col cols="11">
-            <v-progress-linear v-model=progressBarPercentage rounded color="green" background-color="grey lighten-1"
+    <div class="progress-row">
+        <div class="progress-col">
+            <v-progress-linear :value=progressBarPercentage rounded color="green" background-color="grey lighten-1"
                 height="10">
             </v-progress-linear>
-        </v-col>
-        <v-col class="pa-0 mt-2" cols="1">
+        </div>
+        <div v-if="showLabel" class="progress-text-col">
             <label class="progress-text font-weight-bold">{{ progressBarText }}</label>
-        </v-col>
+        </div>
     </div>
 </template>
 <script>
 export default {
     name: 'ProgressBar',
-    props: ['list'],
+    props: ['list', 'showLabel'],
     data() {
         return {
             dialog: false,
@@ -36,5 +36,15 @@ export default {
 }
 </script>
 <style>
-
+.progress-row {
+    display: flex;
+    width: 100%;
+}
+.progress-col {
+    width: 100%;
+    margin-top: 6px;
+}
+.progress-text-col {
+    margin-left: 15px;
+}
 </style>

@@ -32,12 +32,9 @@
                 </v-dialog>
             </v-btn>
         </v-card-title>
-
         <v-card-text>
-            <v-row>
-                <ProgressBar v-bind:list="list">
-                </ProgressBar>
-            </v-row>
+            <ProgressBar :list="list" :showLabel="true">
+            </ProgressBar>
         </v-card-text>
     </v-card>
 </template>

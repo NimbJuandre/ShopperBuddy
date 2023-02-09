@@ -10,10 +10,15 @@
                 <v-icon>mdi-account-plus</v-icon>
             </v-btn>
         </v-app-bar>
-        <ProgressBar v-bind:list="list">
-        </ProgressBar>
+        <v-container>
+            <ProgressBar :list="list" :showLabel="false">
+            </ProgressBar>
+        </v-container>
         <v-list>
-            <v-list-item v-for="(item, i) in list.items" :key="i" ripple>
+            <v-list-item class="list-item" v-for="(item, i) in list.items" :key="i" ripple @click="item.isCompleted = !item.isCompleted">
+                <v-list-item-action>
+                    <v-checkbox :input-value="item.isCompleted"></v-checkbox>
+                </v-list-item-action>
                 <v-list-item-content>
                     <v-list-item-title v-text="item.name"></v-list-item-title>
                 </v-list-item-content>
@@ -210,5 +215,9 @@ export default {
 
 .toolbar-tab {
     color: white !important;
+}
+
+.list-item{
+    cursor: pointer;
 }
 </style>
