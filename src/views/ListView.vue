@@ -10,12 +10,13 @@
                 <v-icon>mdi-account-plus</v-icon>
             </v-btn>
         </v-app-bar>
-        <v-container>
+        <div class="progressbar-wrapper">
             <ProgressBar :list="list" :showLabel="false">
             </ProgressBar>
-        </v-container>
+        </div>
         <v-list>
-            <v-list-item class="list-item" v-for="(item, i) in list.items" :key="i" ripple @click="item.isCompleted = !item.isCompleted">
+            <v-list-item class="list-item" v-for="(item, i) in list.items" :key="i" ripple
+                @click=updateListItemStatus(item)>
                 <v-list-item-action>
                     <v-checkbox :input-value="item.isCompleted"></v-checkbox>
                 </v-list-item-action>
@@ -182,6 +183,9 @@ export default {
             this.dialog = false;
 
         },
+        async updateListItemStatus(item) {
+
+        }, 
         deselectItem(item) {
             this.items.find(i => i.id === item.id).selected = false;
         },
@@ -217,7 +221,11 @@ export default {
     color: white !important;
 }
 
-.list-item{
+.list-item {
     cursor: pointer;
+}
+
+.progressbar-wrapper {
+    margin: 5px 18px;
 }
 </style>

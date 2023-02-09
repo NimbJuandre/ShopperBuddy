@@ -27,7 +27,7 @@ export default {
             return completedItems
         },
         progressBarPercentage() {
-            return parseInt(Math.round((this.list.items.length / this.totalItemCompleted) * 100));
+            return parseInt(Math.round((this.totalItemCompleted / this.list.items.length) * 100));
         },
         progressBarText() {
             return `${this.totalItemCompleted}/${this.list.items.length}`;
@@ -40,10 +40,12 @@ export default {
     display: flex;
     width: 100%;
 }
+
 .progress-col {
     width: 100%;
     margin-top: 6px;
 }
+
 .progress-text-col {
     margin-left: 15px;
 }
