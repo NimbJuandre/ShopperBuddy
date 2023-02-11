@@ -8,14 +8,17 @@
             <v-list-item-title v-text="item.name"></v-list-item-title>
         </v-list-item-content>
         <div v-if="item.selected">
-            <v-list-item-icon v-if="count <= 1" v-on:click.stop="deselectItem(item)">
+            <v-list-item-icon ma-0 v-if="count <= 1" v-on:click.stop="deselectItem(item)">
                 <v-icon class="remove-icon" large>mdi-close</v-icon>
             </v-list-item-icon>
-            <v-list-item-icon class="item-count" v-else v-on:click.stop="minusItemToAdd">
+            <v-list-item-icon ma-0 class="item-count" v-else v-on:click.stop="minusItemToAdd">
                 {{ count }}
                 <v-icon class="remove-icon" large>mdi-minus</v-icon>
             </v-list-item-icon>
         </div>
+        <v-list-item-icon ma-0 v-on:click.stop="deleteItem(item)">
+            <v-icon class="remove-icon" large>mdi-delete</v-icon>
+        </v-list-item-icon>
     </v-list-item>
 </template>
 <script>
@@ -50,7 +53,7 @@ export default {
                 .add(data);
 
             this.$emit('afterItemCreated', data);
-        },        
+        },
         selectItemToAdd(item) {
             //item.selected = true;
             this.deg += 360
@@ -65,6 +68,15 @@ export default {
             this.deg -= 360;
 
             this.$emit('deselectItem', item);
+        },
+        async deleteItem(item) {
+            await firebase
+                .firestore()
+                .collection("items")
+                .doc(item.id)
+                .delete();
+
+            this.$emit('refreshItems', item);
         },
         minusItemToAdd() {
             this.count--;
