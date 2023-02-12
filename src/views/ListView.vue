@@ -59,7 +59,7 @@
                         <v-tab-item>
                             <v-list v-for="(item, i) in items" :key="i">
                                 <Item v-bind:item="item" @afterItemCreated="afterItemCreated" @selectItem="selectItem"
-                                    @deselectItem="deselectItem">
+                                    @deselectItem="deselectItem" @refreshItems="refresh">
                                 </Item>
                             </v-list>
                         </v-tab-item>
@@ -105,6 +105,8 @@ export default {
     },
     methods: {
         async getList(id) {
+            this.list = [];
+
             var listRef = await firebase
                 .firestore()
                 .collection("users")
@@ -123,6 +125,8 @@ export default {
             });
         },
         async getItems() {
+            this.items = [];
+            this.originalItems = [];
             var itemsRef = await firebase
                 .firestore()
                 .collection("items");
@@ -185,7 +189,7 @@ export default {
         },
         async updateListItemStatus(item) {
 
-        }, 
+        },
         deselectItem(item) {
             this.items.find(i => i.id === item.id).selected = false;
         },
@@ -198,6 +202,10 @@ export default {
         shareList() {
 
         },
+        refresh(id) {
+            this.getList(id)
+            this.getItems();
+        }
     }
 }
 </script>
