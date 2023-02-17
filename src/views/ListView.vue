@@ -11,7 +11,7 @@
             </v-btn>
         </v-app-bar>
         <div class="progressbar-wrapper">
-            <ProgressBar :list="list" :showLabel="false">
+            <ProgressBar v-if="list.items" :list="list" :showLabel="false">
             </ProgressBar>
         </div>
         <v-list>
