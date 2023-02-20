@@ -20,9 +20,7 @@ export default {
         }
     },
     computed: {
-        // a computed getter
         totalItemCompleted() {
-            // `this` points to the component instance
             var completedItems = this.list.items.filter(i => i.isCompleted).length;
             return completedItems
         },

@@ -15,9 +15,8 @@
             </ProgressBar>
         </div>
         <v-list>
-            <v-list-item class="list-item" v-for="(item, i) in list.items" :key="i" ripple
-                @click=updateListItemStatus(item)>
-                <v-list-item-action>
+            <v-list-item class="list-item" v-for="(item, i) in list.items" :key="i" ripple>
+                <v-list-item-action @click="updateListItemStatus(item)">
                     <v-checkbox :input-value="item.isCompleted"></v-checkbox>
                 </v-list-item-action>
                 <v-list-item-content>
@@ -185,10 +184,18 @@ export default {
                 .update({ items: selectedItems });
 
             this.dialog = false;
-
         },
-        async updateListItemStatus(item) {
+        async updateListItemStatus(item) { 
+            let currentListItem = this.list.items.find(i => i.id == item.id);
+            currentListItem.isCompleted = !currentListItem.isCompleted;
 
+            await firebase
+                .firestore()
+                .collection("users")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("lists")
+                .doc(this.list.id)
+                .update({ items: this.list.items });
         },
         deselectItem(item) {
             this.items.find(i => i.id === item.id).selected = false;
