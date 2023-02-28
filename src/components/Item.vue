@@ -11,7 +11,7 @@
             <v-list-item-icon class="ma-0" v-if="count <= 1" v-on:click.stop="deselectItem(item)">
                 <v-icon class="remove-icon" large>mdi-close</v-icon>
             </v-list-item-icon>
-            <v-list-item-icon class="item-count ma-0" v-else v-on:click.stop="minusItemToAdd">
+            <v-list-item-icon class="item-count ma-0" v-else v-on:click.stop="minusItemToAdd(item)">
                 {{ count }}
                 <v-icon class="remove-icon" large>mdi-minus</v-icon>
             </v-list-item-icon>
@@ -29,7 +29,7 @@ export default {
     data() {
         return {
             deg: 0,
-            count: 0
+            count: this.item.count
         }
     },
     methods: {
@@ -75,9 +75,11 @@ export default {
 
             this.$emit('refreshItems', item.id);
         },
-        minusItemToAdd() {
+        minusItemToAdd(item) {
             this.count--;
             this.deg -= 360;
+
+            this.$emit('minusSelectedItemCount', item);
         }
     }
 }

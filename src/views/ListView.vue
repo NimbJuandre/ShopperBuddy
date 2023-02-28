@@ -58,7 +58,8 @@
                         <v-tab-item>
                             <v-list v-for="(item, i) in items" :key="i">
                                 <Item v-bind:item="item" @afterItemCreated="afterItemCreated" @selectItem="selectItem"
-                                    @deselectItem="deselectItem" @refreshItems="refresh">
+                                    @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem"
+                                    @refreshItems="refresh">
                                 </Item>
                             </v-list>
                         </v-tab-item>
@@ -134,7 +135,18 @@ export default {
                 snap.forEach(doc => {
                     var item = doc.data();
                     item.id = doc.id;
-                    item.selected = false;
+
+                    // Get the the item's selected andcount props when the item exists in the list.items
+                    var addedItem = this.list.items.find(i => i.id === item.id);
+                    if (addedItem) {
+                        item.selected = true;
+                        item.count = addedItem.count;
+                    }
+                    else {
+                        item.selected = false;
+                        item.count = 0;
+                    }
+
                     this.items.push(item);
                 });
                 this.originalItems = this.items;
@@ -170,6 +182,12 @@ export default {
             item.selected = true;
             item.count++;
         },
+        minusSelectedItemCount(item) {
+            var item = this.items.find(i => i.id === item.id);
+
+            item.selected = true;
+            item.count--;
+        },
         async updateList() {
             var selectedItems = this.items.filter(i => {
                 return i.selected === true
@@ -185,7 +203,7 @@ export default {
 
             this.dialog = false;
         },
-        async updateListItemStatus(item) { 
+        async updateListItemStatus(item) {
             let currentListItem = this.list.items.find(i => i.id == item.id);
             currentListItem.isCompleted = !currentListItem.isCompleted;
 
