@@ -9,7 +9,11 @@
                         <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
                     </template>
                     <v-sheet class="text-center" height="200px">
-                        <v-btn class="mt-6" text color="error" @click="sheet = !sheet">close</v-btn>
+                        <v-row>
+                            <v-col>
+                                <v-btn class="mt-6" text color="error" @click="sheet = !sheet">close</v-btn>
+                            </v-col>
+                        </v-row>
                         <v-dialog v-model="dialog" max-width="320">
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn v-bind="attrs" v-on="on" class="mt-6" text color="error">Delete</v-btn>
