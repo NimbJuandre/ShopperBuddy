@@ -21,10 +21,10 @@ export default {
         .auth()
         .signInWithPopup(provider)
         .then(() => {
-            console.log("success")
+          console.log("success");
         })
         .catch((error) => {
-            console.log(error)
+          console.log(error);
         });
     }
 
@@ -33,5 +33,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

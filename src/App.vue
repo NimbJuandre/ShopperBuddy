@@ -15,20 +15,33 @@ export default {
   data: () => ({
     authenticated: true,
   }),
+  created() {
+    if (this.$workbox) {
+      this.$workbox.addEventListener("waiting", () => {
+        this.showUpgradeUI = true;
+      });
+    }
+  },
   mounted() {
     firebase.auth().onAuthStateChanged((user) => {
       // if not logged in redirect to login page
       if (!user) {
-        this.$router.replace('/login')
+        this.$router.replace("/login");
       }
       // if logged in (user available)  redirect to Home
-      else if (this.$route.path == '/login' || this.$route.path == '/register') {
-        this.$router.replace('/');
+      else if (
+        this.$route.path == "/login" ||
+        this.$route.path == "/register"
+      ) {
+        this.$router.replace("/");
       }
-    })
+    });
   },
   methods: {
-
+    async accept() {
+      this.showUpgradeUI = false
+      await this.$workbox.messageSW({ type: "SKIP_WAITING" });
+    }
   },
 };
 </script>
@@ -38,8 +51,8 @@ export default {
   width: 100%;
 }
 
-.theme--light.v-app-bar.v-toolbar.v-sheet{
-  background-color: #FFFFFF !important;
+.theme--light.v-app-bar.v-toolbar.v-sheet {
+  background-color: #ffffff !important;
 }
 
 .routerlink {

@@ -24,12 +24,11 @@ export default {
         .then(() => {
           console.log("success");
         })
-        .catch(error => console.log(error))
+        .catch((error) => console.log(error));
     }
     return { googleAuth };
   },
 };
 </script>
 
-<style>
-</style>
+<style></style>

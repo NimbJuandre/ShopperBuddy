@@ -1,11 +1,13 @@
-import * as firebase from 'firebase/app';
-import 'firebase/auth';
+import * as firebase from "firebase/app";
+import "firebase/auth";
 
 export default {
   auth: firebase.auth(),
   login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider)
+    firebase
+      .auth()
+      .signInWithPopup(provider)
       .then(function (result) {
         console.log(result);
       })
@@ -15,13 +17,15 @@ export default {
         const email = error.email;
         const credential = error.credential;
         console.log(errorCode, errorMessage, email, credential);
-      })
+      });
   },
   logout() {
-    firebase.auth().signOut()
-      .then(function () { })
+    firebase
+      .auth()
+      .signOut()
+      .then(function () {})
       .catch(function (error) {
-        console.log(error)
+        console.log(error);
       });
-  }
-}
+  },
+};
