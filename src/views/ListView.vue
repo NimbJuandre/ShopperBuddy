@@ -17,13 +17,8 @@
       </ProgressBar>
     </div>
     <v-list>
-      <v-list-item
-        class="list-item"
-        v-for="(item, i) in list.items"
-        :key="i"
-        ripple
-      >
-        <v-list-item-action @click="updateListItemStatus(item)">
+      <v-list-item @click="updateListItemStatus(item)" class="list-item" v-for="(item, i) in list.items" :key="i" ripple>
+        <v-list-item-action>
           <v-checkbox :input-value="item.isCompleted"></v-checkbox>
         </v-list-item-action>
         <v-list-item-content>
@@ -33,25 +28,10 @@
     </v-list>
     <v-row justify="center">
       <!-- Items Dialog -->
-      <v-dialog
-        v-model="dialog"
-        fullscreen
-        hide-overlay
-        transition="dialog-bottom-transition"
-      >
+      <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn
-              class="fab"
-              color="primary"
-              v-bind="attrs"
-              v-on="on"
-              fab
-              dark
-              absolute
-              bottom
-              right
-            >
+            <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -62,17 +42,9 @@
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
             <v-toolbar-title class="toolbar-title pt-4 pl-1">
-              <v-text-field
-                v-model="searchText"
-                @keyup="search()"
-                @click:clear="resetSearchItems()"
-                background-color="white"
-                rounded
-                clearable
-                class="add-item-input mt-1 text-h6"
-                label="Add new Item"
-                single-line
-              ></v-text-field>
+              <v-text-field v-model="searchText" @keyup="search()" @click:clear="resetSearchItems()"
+                background-color="white" rounded clearable class="add-item-input mt-1 text-h6" label="Add new Item"
+                single-line></v-text-field>
             </v-toolbar-title>
 
             <template v-slot:extension>
@@ -87,14 +59,8 @@
           <v-tabs-items v-model="tab">
             <v-tab-item>
               <v-list v-for="(item, i) in items" :key="i">
-                <Item
-                  v-bind:item="item"
-                  @afterItemCreated="afterItemCreated"
-                  @selectItem="selectItem"
-                  @minusSelectedItemCount="minusSelectedItemCount"
-                  @deselectItem="deselectItem"
-                  @refreshItems="refresh"
-                >
+                <Item v-bind:item="item" @afterItemCreated="afterItemCreated" @selectItem="selectItem"
+                  @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem" @refreshItems="refresh">
                 </Item>
               </v-list>
             </v-tab-item>
@@ -106,17 +72,8 @@
           </v-tabs-items>
         </v-card>
         <v-fab-transition>
-          <v-btn
-            class="fab"
-            color="primary"
-            @click="updateList"
-            fab
-            dark
-            fixed
-            bottom
-            right
-          >
-            <v-icon>mdi-plus</v-icon>
+          <v-btn v-if="applyChanges" class="fab" color="primary" @click="updateList" fab dark fixed bottom right>
+            <v-icon>mdi-check</v-icon>
           </v-btn>
         </v-fab-transition>
       </v-dialog>
@@ -141,6 +98,7 @@ export default {
       dialog: false,
       searchText: "",
       tab: null,
+      applyChanges: false,
     };
   },
   async mounted() {
@@ -151,7 +109,7 @@ export default {
     async getList(id) {
       this.list = [];
 
-      var listRef = await firebase
+      var listRef = firebase
         .firestore()
         .collection("users")
         .doc(firebase.auth().currentUser.uid)
@@ -169,7 +127,7 @@ export default {
     async getItems() {
       this.items = [];
       this.originalItems = [];
-      var itemsRef = await firebase.firestore().collection("items");
+      var itemsRef = firebase.firestore().collection("items");
 
       itemsRef.onSnapshot((snap) => {
         snap.forEach((doc) => {
@@ -188,6 +146,11 @@ export default {
 
           this.items.push(item);
         });
+        
+        this.items.sort(function (x, y) {
+          return (x.selected === y.selected)? 0 : x.selected ? -1 : 1;
+        });
+        
         this.originalItems = this.items;
       });
     },
@@ -229,12 +192,14 @@ export default {
 
       item.selected = true;
       item.count++;
+      this.applyChanges = true;
     },
     minusSelectedItemCount(item) {
       var item = this.items.find((i) => i.id === item.id);
 
       item.selected = true;
       item.count--;
+      this.applyChanges = true;
     },
     async updateList() {
       var selectedItems = this.items.filter((i) => {
@@ -250,6 +215,7 @@ export default {
         .update({ items: selectedItems });
 
       this.dialog = false;
+      this.applyChanges = false;
     },
     async updateListItemStatus(item) {
       let currentListItem = this.list.items.find((i) => i.id == item.id);
@@ -265,6 +231,7 @@ export default {
     },
     deselectItem(item) {
       this.items.find((i) => i.id === item.id).selected = false;
+      this.applyChanges = true;
     },
     resetSearchItems() {
       this.items = this.originalItems;
@@ -272,7 +239,7 @@ export default {
     closeList() {
       this.$router.push({ path: "/" });
     },
-    shareList() {},
+    shareList() { },
     refresh(id) {
       this.getList(id);
       this.getItems();
