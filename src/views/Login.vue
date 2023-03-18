@@ -22,8 +22,21 @@
               <h4 class="mt-8" align="center">Or</h4>
               <v-card-text class="pt-0">
                 <v-form>
-                  <v-text-field v-model.trim="email" prepend-icon="person" name="login" label="Login" type="text"></v-text-field>
-                  <v-text-field v-model.trim="password" id="password" prepend-icon="lock" name="password" label="Password" type="password">
+                  <v-text-field
+                    v-model.trim="email"
+                    prepend-icon="person"
+                    name="login"
+                    label="Login"
+                    type="text"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model.trim="password"
+                    id="password"
+                    prepend-icon="lock"
+                    name="password"
+                    label="Password"
+                    type="password"
+                  >
                   </v-text-field>
                 </v-form>
               </v-card-text>
@@ -56,7 +69,7 @@ export default {
   }),
   methods: {
     Login() {
-      console.log('login');
+      console.log("login");
       this.isLoading = true;
       firebase
         .auth()
@@ -65,11 +78,9 @@ export default {
           console.log("Success");
         })
         .catch((err) => alert(err.message));
-    }
+    },
   },
-}
+};
 </script>
 
-<style>
-
-</style>
+<style></style>

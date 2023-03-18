@@ -7,17 +7,17 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import('../views/HomeView.vue'),
+    component: () => import("../views/HomeView.vue"),
   },
   {
     path: "/Login",
     name: "Login",
-    component: () => import('../views/Login.vue'),
+    component: () => import("../views/Login.vue"),
   },
   {
-    path: '/ListView',
-    name: 'ListView',
-    component: () => import('../views/ListView.vue')
+    path: "/ListView",
+    name: "ListView",
+    component: () => import("../views/ListView.vue"),
   },
   // {
   //   path: '/ListView/:id/edit',
