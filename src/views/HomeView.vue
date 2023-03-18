@@ -106,10 +106,10 @@ export default {
         Logout() {
             firebase.auth().signOut();
         },
-        createList() {
+        async createList() {
             console.log('begin')
             try {
-                firebase
+                await firebase
                     .firestore()
                     .collection("users")
                     .doc(firebase.auth().currentUser.uid)
@@ -118,10 +118,11 @@ export default {
                         title: this.createListName,
                         items: [],
                         // createdAt: new Date(),
-                    })
+                    });
                 this.resetCreateModal();
             }
             catch (err) {
+                alert(err)
                 console.log(err)
             }
         },
