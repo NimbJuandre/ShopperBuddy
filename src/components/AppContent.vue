@@ -1,8 +1,8 @@
 <template>
   <v-main class="main-content">
-    <v-slide-x-transition mode="out-in">
+    <!-- <v-slide-x-transition mode="out-in"> -->
       <router-view />
-    </v-slide-x-transition>
+    <!-- </v-slide-x-transition> -->
   </v-main>
 </template>
 <script>

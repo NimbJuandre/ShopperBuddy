@@ -24,6 +24,9 @@
         <v-list-item-content>
           <v-list-item-title v-text="item.name + (item.count > 1 ? ' x ' + item.count : '')"></v-list-item-title>
         </v-list-item-content>
+        <v-list-item-icon class="ml-0" v-on:click.stop="removeItem(item)">
+          <v-icon class="remove-icon" large>mdi-delete</v-icon>
+        </v-list-item-icon>
       </v-list-item>
     </v-list>
     <v-row justify="center">
@@ -146,11 +149,11 @@ export default {
 
           this.items.push(item);
         });
-        
+
         this.items.sort(function (x, y) {
-          return (x.selected === y.selected)? 0 : x.selected ? -1 : 1;
+          return (x.selected === y.selected) ? 0 : x.selected ? -1 : 1;
         });
-        
+
         this.originalItems = this.items;
       });
     },
