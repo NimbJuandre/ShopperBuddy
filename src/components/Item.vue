@@ -8,11 +8,11 @@
       <v-list-item-title v-text="item.name"></v-list-item-title>
     </v-list-item-content>
     <div v-if="item.selected">
-      <v-list-item-icon class="ma-0" v-if="count <= 1" v-on:click.stop="deselectItem(item)">
+      <v-list-item-icon class="ma-0" v-if="item.count <= 1" v-on:click.stop="deselectItem(item)">
         <v-icon class="remove-icon" large>mdi-close</v-icon>
       </v-list-item-icon>
       <v-list-item-icon class="item-count ma-0" v-else v-on:click.stop="minusItemToAdd(item)">
-        {{ count }}
+        {{ item.count }}
         <v-icon class="remove-icon" large>mdi-minus</v-icon>
       </v-list-item-icon>
     </div>
@@ -29,7 +29,6 @@ export default {
   data() {
     return {
       deg: 0,
-      count: this.item.count,
     };
   },
   methods: {
@@ -51,12 +50,10 @@ export default {
     },
     selectItemToAdd(item) {
       this.deg += 360;
-      this.count++;
 
       this.$emit("selectItem", item);
     },
     deselectItem(item) {
-      this.count = 0;
       this.deg -= 360;
 
       this.$emit("deselectItem", item);
@@ -64,10 +61,9 @@ export default {
     async deleteItem(item) {
       await firebase.firestore().collection("items").doc(item.id).delete();
 
-      this.$emit("refreshItems", item.id);
+      this.$emit("deleteItem", item);
     },
     minusItemToAdd(item) {
-      this.count--;
       this.deg -= 360;
 
       this.$emit("minusSelectedItemCount", item);

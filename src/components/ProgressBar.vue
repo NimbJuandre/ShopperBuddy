@@ -1,13 +1,8 @@
 <template>
   <div class="progress-row">
     <div class="progress-col">
-      <v-progress-linear
-        :value="progressBarPercentage"
-        rounded
-        color="green"
-        background-color="grey lighten-1"
-        height="10"
-      >
+      <v-progress-linear :value="progressBarPercentage" rounded color="green" background-color="grey lighten-1"
+        height="10">
       </v-progress-linear>
     </div>
     <div v-if="showLabel" class="progress-text-col">
@@ -32,6 +27,9 @@ export default {
       return completedItems;
     },
     progressBarPercentage() {
+      if (this.list.items.length === 0)
+        return 0;
+
       return parseInt(
         Math.round((this.totalItemCompleted / this.list.items.length) * 100)
       );

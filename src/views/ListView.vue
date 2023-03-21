@@ -17,7 +17,8 @@
       </ProgressBar>
     </div>
     <v-list>
-      <v-list-item @click="updateListItemStatus(item)" class="list-item" v-for="(item, i) in list.items" :key="i" ripple>
+      <v-list-item @click="updateListItemStatus(item)" :class="{ isCompleted: item.isCompleted }" class="list-item"
+        v-for="(item, i) in list.items" :key="i" ripple>
         <v-list-item-action>
           <v-checkbox :input-value="item.isCompleted"></v-checkbox>
         </v-list-item-action>
@@ -34,7 +35,7 @@
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute bottom right>
+            <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark fixed bottom right>
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -62,8 +63,8 @@
           <v-tabs-items v-model="tab">
             <v-tab-item>
               <v-list v-for="(item, i) in items" :key="i">
-                <Item v-bind:item="item" @afterItemCreated="afterItemCreated" @selectItem="selectItem"
-                  @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem" @refreshItems="refresh">
+                <Item v-if="item.visible" :item="item" @afterItemCreated="afterItemCreated" @selectItem="selectItem"
+                  @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem" @deleteItem="deleteItem">
                 </Item>
               </v-list>
             </v-tab-item>
@@ -97,7 +98,6 @@ export default {
     return {
       list: null,
       items: [],
-      originalItems: [],
       dialog: false,
       searchText: "",
       tab: null,
@@ -128,16 +128,16 @@ export default {
       });
     },
     async getItems() {
-      this.items = [];
-      this.originalItems = [];
       var itemsRef = firebase.firestore().collection("items");
+      this.items = [];
 
       itemsRef.onSnapshot((snap) => {
         snap.forEach((doc) => {
           var item = doc.data();
           item.id = doc.id;
+          item.visible = true;
 
-          // Get the the item's selected andcount props when the item exists in the list.items
+          // Get the the item selected and count props when the item exists in the list.items
           var addedItem = this.list.items.find((i) => i.id === item.id);
           if (addedItem) {
             item.selected = true;
@@ -147,33 +147,48 @@ export default {
             item.count = 0;
           }
 
-          this.items.push(item);
+          // Only add the item if i does not exists in the item array
+          if (!this.items.find((i) => i.id === item.id))
+            this.items.push(item);
         });
 
-        this.items.sort(function (x, y) {
-          return (x.selected === y.selected) ? 0 : x.selected ? -1 : 1;
-        });
-
-        this.originalItems = this.items;
+        this.sortSelectedItems();
+      });
+    },
+    removeNewItems() {
+      // Remove the newItems 
+      this.items = this.items.filter(function (item) {
+        return item.newItem === undefined;
+      });
+    },
+    showAllItems() {
+      this.items.forEach(function (item) {
+        item.visible = true;
       });
     },
     async search() {
-      let searchItems = [];
+      this.removeNewItems();
 
       if (this.searchText.length == 0) {
-        this.items = this.originalItems;
+        this.showAllItems();
         return;
       }
 
+      this.items.forEach(function (item) { // hide all the items when searching
+        item.visible = false;
+      });
+
+      // If the item does not exits, add a new item
       if (
-        this.originalItems
+        this.items
           .map((n) => n.name.toLowerCase().trim())
           .indexOf(this.searchText.toLowerCase().trim()) === -1
       )
-        searchItems.push({ name: this.searchText, newItem: true });
+        this.items.unshift({ name: this.searchText, newItem: true, visible: true });
 
-      for (let index = 0; index < this.originalItems.length; ++index) {
-        let item = this.originalItems[index];
+      // Loop the existing items and add it to the searchItems array
+      for (let index = 0; index < this.items.length; ++index) {
+        let item = this.items[index];
 
         if (
           item.name
@@ -181,13 +196,12 @@ export default {
             .trim()
             .includes(this.searchText.toLowerCase().trim())
         )
-          searchItems.push(item);
+          item.visible = true;
       }
-
-      this.items = searchItems;
     },
     afterItemCreated() {
-      this.items.shift();
+      this.removeNewItems();
+      this.showAllItems();
       this.searchText = "";
     },
     selectItem(item) {
@@ -209,6 +223,15 @@ export default {
         return i.selected === true;
       });
 
+      this.list.items.forEach(function (item) { // Updte the item's count and selected props
+        var existingItem = selectedItems.find((i) => i.id === item.id);
+
+        if (existingItem) {
+          existingItem.count = item.count;
+          existingItem.isCompleted = item.isCompleted;
+        }
+      });
+
       await firebase
         .firestore()
         .collection("users")
@@ -224,6 +247,10 @@ export default {
       let currentListItem = this.list.items.find((i) => i.id == item.id);
       currentListItem.isCompleted = !currentListItem.isCompleted;
 
+      this.list.items.sort(function (x, y) {
+        return (x.isCompleted === y.isCompleted) ? 0 : x.isCompleted ? 1 : -1;
+      });
+
       await firebase
         .firestore()
         .collection("users")
@@ -231,20 +258,54 @@ export default {
         .collection("lists")
         .doc(this.list.id)
         .update({ items: this.list.items });
+
     },
     deselectItem(item) {
-      this.items.find((i) => i.id === item.id).selected = false;
+      var item = this.items.find((i) => i.id === item.id);
+
+      item.selected = false;
+      item.count = 0;
       this.applyChanges = true;
     },
     resetSearchItems() {
-      this.items = this.originalItems;
+      this.removeNewItems();
+      this.showAllItems();
     },
     closeList() {
       this.$router.push({ path: "/" });
     },
+    async removeItem(clickedItem) {
+      var item = this.items.find((i) => i.id === clickedItem.id);
+      var selectedItems = this.list.items.filter((i) => {
+        return i.id !== clickedItem.id;
+      });
+
+      item.selected = false;
+      item.count = 0;
+      item.isCompleted = false;
+
+      this.sortSelectedItems();
+
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("lists")
+        .doc(this.list.id)
+        .update({ items: selectedItems });
+    },
+    sortSelectedItems() {
+      this.items.sort(function (x, y) {
+        return (x.selected === y.selected) ? 0 : x.selected ? -1 : 1;
+      });
+    },
     shareList() { },
-    refresh(id) {
-      this.getList(id);
+    deleteItem(item) {
+      this.removeItem(item);
+      this.refresh();
+    },
+    refresh() {
+      this.getList(this.list.id);
       this.getItems();
     },
   },
@@ -272,6 +333,12 @@ export default {
 
 .list-item {
   cursor: pointer;
+  -webkit-box-shadow: 0px 1px 4px -2px rgb(171 149 149 / 50%)
+}
+
+.list-item.isCompleted {
+  background-color: #dadada91;
+  filter: grayscale(20%);
 }
 
 .progressbar-wrapper {
