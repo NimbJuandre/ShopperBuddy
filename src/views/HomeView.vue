@@ -40,7 +40,7 @@
             <v-dialog v-model="dialog" max-width="600px">
                 <template v-slot:activator="{ on, attrs }">
                     <v-fab-transition>
-                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute>
+                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark fixed bottom right>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-fab-transition>
@@ -49,7 +49,7 @@
                     <v-card-text>
                         <v-container grid-list-md>
                             <v-layout wrap>
-                                <v-text-field v-model="createListName" class="create-list-name font-weight-bold text-h5"
+                                <v-text-field v-on:keyup.enter="createList" v-model="createListName" class="create-list-name font-weight-bold text-h5"
                                     autofocus label="New List" required>
                                 </v-text-field>
                             </v-layout>
