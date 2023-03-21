@@ -37,32 +37,32 @@
             </v-layout>
         </v-container>
         <v-layout row justify-center>
-        <v-dialog v-model="dialog" max-width="600px">
-            <template v-slot:activator="{ on, attrs }">
-                <v-fab-transition>
-                    <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute>
-                        <v-icon>mdi-plus</v-icon>
-                    </v-btn>
-                </v-fab-transition>
-            </template>
-            <v-card>
-                <v-card-text>
-                    <v-container grid-list-md>
-                        <v-layout wrap>
-                            <v-text-field v-model="createListName" class="create-list-name font-weight-bold text-h5"
-                                autofocus label="New List" required>
-                            </v-text-field>
-                        </v-layout>
-                    </v-container>
-                </v-card-text>
-                <v-card-actions>
-                    <v-col class="text-left">
-                        <v-btn color="blue darken-1" @click.stop="resetCreateModal">Close</v-btn>
-                    </v-col>
-                    <v-btn color="green darken-1" @click.stop="createList">Create</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+            <v-dialog v-model="dialog" max-width="600px">
+                <template v-slot:activator="{ on, attrs }">
+                    <v-fab-transition>
+                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark absolute>
+                            <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                    </v-fab-transition>
+                </template>
+                <v-card>
+                    <v-card-text>
+                        <v-container grid-list-md>
+                            <v-layout wrap>
+                                <v-text-field v-model="createListName" class="create-list-name font-weight-bold text-h5"
+                                    autofocus label="New List" required>
+                                </v-text-field>
+                            </v-layout>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-col class="text-left">
+                            <v-btn color="blue darken-1" @click.stop="resetCreateModal">Close</v-btn>
+                        </v-col>
+                        <v-btn color="green darken-1" @click.stop="createList">Create</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-layout>
     </div>
 </template>
@@ -107,7 +107,7 @@ export default {
             firebase.auth().signOut();
         },
         async createList() {
-            console.log('begin')
+            alert('Start list add');
             try {
                 await firebase
                     .firestore()
@@ -119,11 +119,12 @@ export default {
                         items: [],
                         // createdAt: new Date(),
                     });
+                alert('After firebase add');
                 this.resetCreateModal();
             }
             catch (err) {
-                alert(err)
-                console.log(err)
+                alert(err);
+                console.log(err);
             }
         },
         async getLists() {
