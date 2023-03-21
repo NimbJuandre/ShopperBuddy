@@ -107,7 +107,6 @@ export default {
             firebase.auth().signOut();
         },
         async createList() {
-            alert('Start list add');
             try {
                 await firebase
                     .firestore()
@@ -119,7 +118,6 @@ export default {
                         items: [],
                         // createdAt: new Date(),
                     });
-                alert('After firebase add');
                 this.resetCreateModal();
             }
             catch (err) {
