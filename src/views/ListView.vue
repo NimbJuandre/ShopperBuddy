@@ -17,10 +17,11 @@
       </ProgressBar>
     </div>
     <v-list>
-      <v-list-item @click="updateListItemStatus(item)" :class="{ isCompleted: item.isCompleted }" class="list-item"
-        v-for="(item, i) in list.items" :key="i" ripple active-color="white">
+      <v-list-item @click="updateListItemStatus($event, item)" :class="{ isCompleted: item.isCompleted }"
+        class="list-item" v-for="(item, i) in list.items" :key="i" ripple active-color="white">
         <v-list-item-action>
-          <v-checkbox v-on:click.stop="updateListItemStatus(item, true)" v-model="item.isCompleted"></v-checkbox>
+          <v-checkbox click.native.prevent.stop.capture="updateListItemStatus($event, item)"
+            :input-value="item.isCompleted"></v-checkbox>
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title v-text="item.name + (item.count > 1 ? ' x ' + item.count : '')"></v-list-item-title>
@@ -125,6 +126,10 @@ export default {
 
         list.id = snap.id;
         this.list = list;
+
+        this.list.items.sort(function (x, y) {
+          return (x.isCompleted === y.isCompleted) ? 0 : x.isCompleted ? 1 : -1;
+        });
       });
     },
     async getItems() {
@@ -243,9 +248,11 @@ export default {
       this.dialog = false;
       this.applyChanges = false;
     },
-    async updateListItemStatus(item, checkboxClickEvent) {
+    async updateListItemStatus(event, item) {
+      event.stopPropagation()
+
       let currentListItem = this.list.items.find((i) => i.id == item.id);
-      currentListItem.isCompleted = checkboxClickEvent ? currentListItem.isCompleted : !currentListItem.isCompleted;
+      currentListItem.isCompleted = !currentListItem.isCompleted;
 
       await firebase
         .firestore()
