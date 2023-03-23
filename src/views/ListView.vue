@@ -18,7 +18,7 @@
     </div>
     <v-list>
       <v-list-item @click="updateListItemStatus($event, item)" :class="{ isCompleted: item.isCompleted }"
-        class="list-item" v-for="(item, i) in list.items" :key="i" ripple active-color="white">
+        class="list-item" v-for="(item, i) in list.items" :key="i" ripple>
         <v-list-item-action>
           <v-checkbox click.native.prevent.stop.capture="updateListItemStatus($event, item)"
             :input-value="item.isCompleted"></v-checkbox>
@@ -339,7 +339,16 @@ export default {
 
 .list-item {
   cursor: pointer;
-  -webkit-box-shadow: 0px 1px 4px -2px rgb(171 149 149 / 50%)
+  -webkit-box-shadow: 0px 1px 4px -2px rgb(171 149 149 / 50%);
+  color: transparent !important;
+}
+
+.v-list-item__title {
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.v-input--selection-controls__input:hover .v-input--selection-controls__ripple:before {
+  background-color: transparent !important;
 }
 
 .list-item.isCompleted {
