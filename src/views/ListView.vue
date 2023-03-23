@@ -20,8 +20,8 @@
       <v-list-item @click="updateListItemStatus($event, item)" :class="{ isCompleted: item.isCompleted }"
         class="list-item" v-for="(item, i) in list.items" :key="i" ripple>
         <v-list-item-action>
-          <v-checkbox @click.stop="updateListItemStatus($event, item)"
-            :input-value="item.isCompleted" :ripple="false"></v-checkbox>
+          <v-checkbox @click.stop="updateListItemStatus($event, item)" :input-value="item.isCompleted"
+            :ripple="false"></v-checkbox>
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title v-text="item.name + (item.count > 1 ? ' x ' + item.count : '')"></v-list-item-title>

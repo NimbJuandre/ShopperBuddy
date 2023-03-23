@@ -31,7 +31,13 @@
         </v-navigation-drawer>
         <v-container fluid grid-list-md>
             <v-layout row wrap>
-                <v-flex v-for="list in lists" :key="list.id" xs12 md6 lg6 pa-3>
+                <v-responsive class="mx-auto" v-if="loading">
+                    <v-responsive class="ma-3" height="125" v-for="index in 5" :key="index">
+                        <v-skeleton-loader ref="skeleton" :boilerplate="false" type="image" :tile=true
+                            class="mx-auto"></v-skeleton-loader>
+                    </v-responsive>
+                </v-responsive>
+                <v-flex v-else v-for="list in lists" :key="list.id" xs12 md6 lg6 pa-3>
                     <List v-bind:list="list"></List>
                 </v-flex>
             </v-layout>
@@ -49,8 +55,8 @@
                     <v-card-text>
                         <v-container grid-list-md>
                             <v-layout wrap>
-                                <v-text-field v-on:keyup.enter="createList" v-model="createListName" class="create-list-name font-weight-bold text-h5"
-                                    autofocus label="New List" required>
+                                <v-text-field v-on:keyup.enter="createList" v-model="createListName"
+                                    class="create-list-name font-weight-bold text-h5" autofocus label="New List" required>
                                 </v-text-field>
                             </v-layout>
                         </v-container>
@@ -78,6 +84,7 @@ export default {
     props: ['artists'],
     data() {
         return {
+            loading: true,
             dialog: false,
             notifications: false,
             sound: true,
@@ -108,6 +115,8 @@ export default {
         },
         async createList() {
             try {
+                this.dialog = false;
+
                 await firebase
                     .firestore()
                     .collection("users")
@@ -118,7 +127,7 @@ export default {
                         items: [],
                         // createdAt: new Date(),
                     });
-                this.resetCreateModal();
+                this.createListName = '';
             }
             catch (err) {
                 alert(err);
@@ -140,6 +149,7 @@ export default {
                     list.id = doc.id;
                     this.lists.push(list);
                 });
+                this.loading = false;
             });
         },
         resetCreateModal() {
@@ -158,5 +168,9 @@ export default {
 
 .create-card {
     box-shadow: none !important;
+}
+
+.v-responsive {
+    border-radius: 15px;
 }
 </style>
