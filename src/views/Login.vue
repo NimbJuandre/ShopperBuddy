@@ -13,13 +13,13 @@
                     <v-btn>
                       <Google />
                     </v-btn>
-                    <v-btn>
+                    <!-- <v-btn>
                       <GitHub />
-                    </v-btn>
+                    </v-btn> -->
                   </v-btn-toggle>
                 </v-row>
               </div>
-              <h4 class="mt-8" align="center">Or</h4>
+              <!-- <h4 class="mt-8" align="center">Or</h4>
               <v-card-text class="pt-0">
                 <v-form>
                   <v-text-field
@@ -43,7 +43,7 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn @click="Login" color="primary">Login</v-btn>
-              </v-card-actions>
+              </v-card-actions> -->
             </v-card>
           </v-flex>
         </v-layout>
