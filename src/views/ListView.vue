@@ -42,40 +42,22 @@
           </v-fab-transition>
         </template>
         <v-card rounded="false">
-          <v-toolbar class="item-add-toolbar" color="primary">
+          <v-app-bar app fixed class="item-add-toolbar" color="primary">
             <v-btn icon dark @click="dialog = false">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
-            <v-toolbar-title class="toolbar-title pt-4 pl-1">
+            <v-app-bar-title class="toolbar-title pt-4 pl-1">
               <v-text-field v-model="searchText" @keyup="search()" v-on:keyup.enter="createItem"
                 @click:clear="resetSearchItems()" background-color="white" rounded clearable
                 class="add-item-input mt-1 text-h6" label="Add new Item" single-line></v-text-field>
-            </v-toolbar-title>
-
-            <template v-slot:extension>
-              <v-tabs v-model="tab" align-with-title>
-                <v-tabs-slider color="white"></v-tabs-slider>
-                <v-tab class="toolbar-tab">POPULAR</v-tab>
-                <v-tab class="toolbar-tab">RECENT</v-tab>
-              </v-tabs>
-            </template>
-          </v-toolbar>
-
-          <v-tabs-items v-model="tab">
-            <v-tab-item>
-              <v-list v-for="(item, i) in items" :key="i">
-                <Item v-if="item.visible" ref="itemComponentRef" :item="item" @afterItemCreated="afterItemCreated"
-                  @selectItem="selectItem" @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem"
-                  @deleteItem="deleteItem">
-                </Item>
-              </v-list>
-            </v-tab-item>
-            <v-tab-item>
-              <v-card flat>
-                <v-card-text> RECENT</v-card-text>
-              </v-card>
-            </v-tab-item>
-          </v-tabs-items>
+            </v-app-bar-title>
+          </v-app-bar>
+          <v-list v-for="(item, i) in items" :key="i">
+            <Item v-if="item.visible" ref="itemComponentRef" :item="item" @afterItemCreated="afterItemCreated"
+              @selectItem="selectItem" @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem"
+              @deleteItem="deleteItem">
+            </Item>
+          </v-list>
         </v-card>
         <v-fab-transition>
           <v-btn v-if="applyChanges" class="fab" color="primary" @click="updateList" fab dark fixed bottom right>
@@ -338,6 +320,7 @@ export default {
 }
 
 .item-add-toolbar {
+  background-color: #1976d2 !important;
   border-bottom-left-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
   border-top-left-radius: 0px !important;
