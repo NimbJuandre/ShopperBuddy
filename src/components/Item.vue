@@ -45,8 +45,6 @@ export default {
       };
 
       this.$emit("afterItemCreated", data);
-
-      await firebase.firestore().collection("items").add(data);
     },
     selectItemToAdd(item) {
       this.deg += 360;

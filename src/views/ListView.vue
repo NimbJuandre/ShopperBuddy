@@ -204,10 +204,15 @@ export default {
           item.visible = true;
       }
     },
-    afterItemCreated() {
+    afterItemCreated(data) {
+      firebase.firestore().collection("items").add(data).then(function (res) {
+        this.selectItem({id: res.id});
+        this.sortSelectedItems();
+      }.bind(this));
+
+      this.searchText = "";
       this.removeNewItems();
       this.showAllItems();
-      this.searchText = "";
     },
     selectItem(item) {
       var item = this.items.find((i) => i.id === item.id);
@@ -337,6 +342,7 @@ export default {
 
 .list-item {
   cursor: pointer;
+  box-shadow: 0px 1px 4px -2px rgb(171 149 149 / 50%);
   -webkit-box-shadow: 0px 1px 4px -2px rgb(171 149 149 / 50%);
   color: transparent !important;
 }
