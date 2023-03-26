@@ -47,9 +47,9 @@
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
             <v-toolbar-title class="toolbar-title pt-4 pl-1">
-              <v-text-field v-model="searchText" @keyup="search()" @click:clear="resetSearchItems()"
-                background-color="white" rounded clearable class="add-item-input mt-1 text-h6" label="Add new Item"
-                single-line></v-text-field>
+              <v-text-field v-model="searchText" @keyup="search()" v-on:keyup.enter="createItem"
+                @click:clear="resetSearchItems()" background-color="white" rounded clearable
+                class="add-item-input mt-1 text-h6" label="Add new Item" single-line></v-text-field>
             </v-toolbar-title>
 
             <template v-slot:extension>
@@ -64,8 +64,9 @@
           <v-tabs-items v-model="tab">
             <v-tab-item>
               <v-list v-for="(item, i) in items" :key="i">
-                <Item v-if="item.visible" :item="item" @afterItemCreated="afterItemCreated" @selectItem="selectItem"
-                  @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem" @deleteItem="deleteItem">
+                <Item v-if="item.visible" ref="itemComponentRef" :item="item" @afterItemCreated="afterItemCreated"
+                  @selectItem="selectItem" @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem"
+                  @deleteItem="deleteItem">
                 </Item>
               </v-list>
             </v-tab-item>
@@ -160,6 +161,16 @@ export default {
         this.sortSelectedItems();
       });
     },
+    createItem() {
+      if (!this.searchText)
+        return;
+
+      var itemtoAdd = this.items.filter((i) => {
+        return i.visible === true;
+      });
+
+      this.$refs.itemComponentRef[0].addItem(itemtoAdd[0]);
+    },
     removeNewItems() {
       // Remove the newItems 
       this.items = this.items.filter(function (item) {
@@ -206,7 +217,7 @@ export default {
     },
     afterItemCreated(data) {
       firebase.firestore().collection("items").add(data).then(function (res) {
-        this.selectItem({id: res.id});
+        this.selectItem({ id: res.id });
         this.sortSelectedItems();
       }.bind(this));
 
@@ -252,6 +263,7 @@ export default {
 
       this.dialog = false;
       this.applyChanges = false;
+      this.searchText = '';
     },
     async updateListItemStatus(event, item) {
       let currentListItem = this.list.items.find((i) => i.id == item.id);
