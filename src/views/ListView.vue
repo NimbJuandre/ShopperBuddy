@@ -4,13 +4,33 @@
       <v-btn icon @click="closeList">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
-      <v-toolbar-title class="font-weight-bold">{{
-        list.title
-      }}</v-toolbar-title>
+      <v-toolbar-title class="font-weight-bold">{{ list.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="shareList">
-        <v-icon>mdi-account-plus</v-icon>
-      </v-btn>
+      <!-- User dialog-->
+      <v-dialog v-model="userDialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="userDialog = true" v-bind="attrs" v-on="on">
+            <v-icon>mdi-account-plus</v-icon>
+          </v-btn>
+        </template>
+        <v-card rounded="false">
+          <v-card-title class="card-title pa-0">
+            <v-toolbar fixed class="item-add-toolbar" color="primary">
+              <v-btn icon dark @click="userDialog = false">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-btn>
+              <v-toolbar-title class="toolbar-title pt-4 pl-1">
+                <v-text-field v-model="userSearchText" @keyup="searchUsers()" @click:clear="resetSearchUsers()"
+                  background-color="white" rounded clearable class="add-item-input mt-1 text-h6"
+                  label="Enter user name or email" single-line></v-text-field>
+              </v-toolbar-title>
+            </v-toolbar>
+          </v-card-title>
+          <v-list v-for="(user, i) in users" :key="i">
+            <User :user="user" @InviteUser="InviteUser"></User>
+          </v-list>
+        </v-card>
+      </v-dialog>
     </v-app-bar>
     <div class="progressbar-wrapper">
       <ProgressBar v-if="list.items" :list="list" :showLabel="false">
@@ -42,16 +62,18 @@
           </v-fab-transition>
         </template>
         <v-card rounded="false">
-          <v-app-bar app fixed class="item-add-toolbar" color="primary">
-            <v-btn icon dark @click="dialog = false">
-              <v-icon>mdi-arrow-left</v-icon>
-            </v-btn>
-            <v-app-bar-title class="toolbar-title pt-4 pl-1">
-              <v-text-field v-model="searchText" @keyup="search()" v-on:keyup.enter="createItem"
-                @click:clear="resetSearchItems()" background-color="white" rounded clearable
-                class="add-item-input mt-1 text-h6" label="Add new Item" single-line></v-text-field>
-            </v-app-bar-title>
-          </v-app-bar>
+          <v-card-title class="card-title pa-0">
+            <v-toolbar fixed class="item-add-toolbar" color="primary">
+              <v-btn icon dark @click="dialog = false">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-btn>
+              <v-toolbar-title class="toolbar-title pt-4 pl-1">
+                <v-text-field v-model="searchText" @keyup="search()" v-on:keyup.enter="createItem"
+                  @click:clear="resetSearchItems()" background-color="white" rounded clearable
+                  class="add-item-input mt-1 text-h6" label="Add new Item" single-line></v-text-field>
+              </v-toolbar-title>
+            </v-toolbar>
+          </v-card-title>
           <v-list v-for="(item, i) in items" :key="i">
             <Item v-if="item.visible" ref="itemComponentRef" :item="item" @afterItemCreated="afterItemCreated"
               @selectItem="selectItem" @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem"
@@ -71,26 +93,32 @@
 <script>
 import firebase from "firebase";
 import Item from "../components/Item.vue";
+import User from "../components/User.vue";
 import ProgressBar from "../components/ProgressBar.vue";
 export default {
   name: "ListView",
   components: {
     Item,
+    User,
     ProgressBar,
   },
   data() {
     return {
       list: null,
       items: [],
+      users: [],
       dialog: false,
+      userDialog: false,
       searchText: "",
+      userSearchText: '',
       tab: null,
       applyChanges: false,
     };
   },
   async mounted() {
     await this.getList(this.$route.query.id);
-    await this.getItems();
+    await this.selectItems();
+    await this.selectAllUsers();
   },
   methods: {
     async getList(id) {
@@ -115,9 +143,13 @@ export default {
         });
       });
     },
-    async getItems() {
-      var itemsRef = firebase.firestore().collection("items");
+    async selectItems() {
       this.items = [];
+      var itemsRef = firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("items");
 
       itemsRef.onSnapshot((snap) => {
         snap.forEach((doc) => {
@@ -143,6 +175,21 @@ export default {
         this.sortSelectedItems();
       });
     },
+    async selectAllUsers() {
+      this.users = [];
+      var userRef = firebase
+        .firestore()
+        .collection("logedInUsers");
+
+      userRef.onSnapshot((snap) => {
+        snap.forEach((doc) => {
+          var user = doc.data();
+
+          user.visible = true;
+          this.users.push(user);
+        })
+      });
+    },
     createItem() {
       if (!this.searchText)
         return;
@@ -162,6 +209,11 @@ export default {
     showAllItems() {
       this.items.forEach(function (item) {
         item.visible = true;
+      });
+    },
+    showAllUsers() {
+      this.users.forEach(function (user) {
+        user.visible = true;
       });
     },
     async search() {
@@ -197,11 +249,35 @@ export default {
           item.visible = true;
       }
     },
+    async searchUsers() {
+      if (this.userSearchText.length == 0) {
+        this.showAllUsers();
+        return;
+      }
+
+      this.users.forEach(function (user) { // hide all the users when searching
+        user.visible = false;
+      });
+
+      for (let index = 0; index < this.users.length; ++index) {
+        let user = this.users[index];
+
+        if ( // check the user's display name and email
+          user.displayName.toLowerCase().trim().includes(this.userSearchText.toLowerCase().trim()) ||
+          user.email.toLowerCase().trim().includes(this.userSearchText.toLowerCase().trim())
+        )
+          user.visible = true;
+      }
+    },
     afterItemCreated(data) {
-      firebase.firestore().collection("items").add(data).then(function (res) {
-        this.selectItem({ id: res.id });
-        this.sortSelectedItems();
-      }.bind(this));
+      firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("items").add(data).then(function (res) {
+          this.selectItem({ id: res.id });
+          this.sortSelectedItems();
+        }.bind(this));
 
       this.searchText = "";
       this.removeNewItems();
@@ -274,6 +350,9 @@ export default {
       this.removeNewItems();
       this.showAllItems();
     },
+    resetSearchUsers() {
+      this.showAllUsers();
+    },
     closeList() {
       this.$router.push({ path: "/" });
     },
@@ -302,14 +381,24 @@ export default {
         return (x.selected === y.selected) ? 0 : x.selected ? -1 : 1;
       });
     },
-    shareList() { },
-    deleteItem(item) {
+    InviteUser() {
+
+    },
+    async deleteItem(item) {
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("items")
+        .doc(item.id)
+        .delete();
+
       this.removeItem(item);
       this.refresh();
     },
     refresh() {
       this.getList(this.list.id);
-      this.getItems();
+      this.selectItems();
     },
   },
 };
@@ -325,6 +414,12 @@ export default {
   border-bottom-right-radius: 0px !important;
   border-top-left-radius: 0px !important;
   border-top-right-radius: 0px !important;
+}
+
+.card-title {
+  position: sticky;
+  top: 0;
+  z-index: 999;
 }
 
 .toolbar-title {

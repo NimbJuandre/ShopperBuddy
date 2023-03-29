@@ -67,19 +67,19 @@ export default {
     password: null,
     isLoading: false,
   }),
-  methods: {
-    Login() {
-      console.log("login");
-      this.isLoading = true;
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
-        .then((data) => {
-          console.log("Success");
-        })
-        .catch((err) => alert(err.message));
-    },
-  },
+  // methods: {
+  //   Login() {
+  //     console.log("login");
+  //     this.isLoading = true;
+  //     firebase
+  //       .auth()
+  //       .signInWithEmailAndPassword(this.email, this.password)
+  //       .then((data) => {
+  //         console.log("Successw");
+  //       })
+  //       .catch((err) => alert(err.message));
+  //   },
+  // },
 };
 </script>
 

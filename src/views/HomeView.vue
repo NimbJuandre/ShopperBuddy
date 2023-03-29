@@ -7,7 +7,7 @@
         <v-navigation-drawer v-model="drawer" absolute temporary>
             <v-list-item>
                 <v-list-item-content>
-                    <v-list-item-title>Loged in</v-list-item-title>
+                    <v-list-item-title>Loged in with {{ logedInUserName }}</v-list-item-title>
                 </v-list-item-content>
                 <v-spacer></v-spacer>
                 <v-btn icon title="Click to logout" @click="Logout">
@@ -84,6 +84,7 @@ export default {
     props: ['artists'],
     data() {
         return {
+            logedInUserName: "",
             loading: true,
             dialog: false,
             notifications: false,
@@ -105,12 +106,19 @@ export default {
     mounted() {
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
+                this.logedInUserName = user.displayName;
                 this.getLists();
+                this.saveUser(user)
             }
         })
     },
     methods: {
-        Logout() {
+        async Logout() {
+            await firebase
+                .firestore()
+                .collection("logedInUsers")
+                .doc(firebase.auth().currentUser.uid).delete();
+
             firebase.auth().signOut();
         },
         async createList() {
@@ -151,6 +159,18 @@ export default {
                 });
                 this.loading = false;
             });
+        },
+        async saveUser(user) {
+            const model = {
+                uid: user.uid,
+                displayName: user.displayName,
+                email: user.email
+            };
+
+            await firebase
+                .firestore()
+                .collection("logedInUsers")
+                .doc(firebase.auth().currentUser.uid).set(model)
         },
         resetCreateModal() {
             this.dialog = false;

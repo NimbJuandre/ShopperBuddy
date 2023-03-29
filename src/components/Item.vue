@@ -22,7 +22,6 @@
   </v-list-item>
 </template>
 <script>
-import firebase from "firebase";
 export default {
   name: "Item",
   props: ["item"],
@@ -57,8 +56,6 @@ export default {
       this.$emit("deselectItem", item);
     },
     async deleteItem(item) {
-      await firebase.firestore().collection("items").doc(item.id).delete();
-
       this.$emit("deleteItem", item);
     },
     minusItemToAdd(item) {
