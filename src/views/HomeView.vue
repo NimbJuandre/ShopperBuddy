@@ -43,11 +43,9 @@
             </v-layout>
         </v-container>
         <v-layout row justify-center>
-            <v-fab-transition>
-                <v-btn class="fab" color="primary" @click="dialog = true" fab dark fixed bottom right>
-                    <v-icon>mdi-plus</v-icon>
-                </v-btn>
-            </v-fab-transition>
+            <v-btn class="fab" color="primary" @click="dialog = true" fab dark fixed bottom right>
+                <v-icon>mdi-plus</v-icon>
+            </v-btn>
             <v-dialog v-model="dialog" max-width="600px" persistent>
                 <v-card>
                     <v-card-text>
@@ -61,9 +59,9 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-col class="text-left">
-                            <v-btn color="blue darken-1" @click.stop="resetCreateModal">Close</v-btn>
+                            <v-btn color="blue darken-1" @click="resetCreateModal">Close</v-btn>
                         </v-col>
-                        <v-btn color="green darken-1" @click.stop="createList">Create</v-btn>
+                        <v-btn color="green darken-1" @click="createList">Create</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
