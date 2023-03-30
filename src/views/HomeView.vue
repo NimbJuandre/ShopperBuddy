@@ -42,7 +42,7 @@
                 </v-flex>
             </v-layout>
         </v-container>
-        <v-layout row justify-center>
+        <!-- <v-layout row justify-center> -->
             <v-btn class="fab" color="primary" @click="dialog = true" fab dark fixed bottom right>
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
@@ -65,7 +65,7 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
-        </v-layout>
+        <!-- </v-layout> -->
     </div>
 </template>
 
