@@ -43,7 +43,7 @@
             </v-layout>
         </v-container>
         <v-layout row justify-center>
-            <v-dialog v-model="dialog" max-width="600px">
+            <v-dialog v-model="dialog" max-width="600px" persistent>
                 <template v-slot:activator="{ on, attrs }">
                     <v-fab-transition>
                         <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark fixed bottom right>
