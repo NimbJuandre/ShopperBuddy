@@ -48,7 +48,7 @@
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
             </v-fab-transition>
-            <v-dialog v-model="dialog" max-width="600px">
+            <v-dialog v-model="dialog" max-width="600px" persistent>
                 <v-card>
                     <v-card-text>
                         <v-container grid-list-md>
