@@ -43,14 +43,12 @@
             </v-layout>
         </v-container>
         <v-layout row justify-center>
-            <v-dialog v-model="dialog" max-width="600px" persistent absolute>
-                <template v-slot:activator="{ on, attrs }">
-                    <v-fab-transition>
-                        <v-btn class="fab" color="primary" v-bind="attrs" v-on="on" fab dark fixed bottom right>
-                            <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                    </v-fab-transition>
-                </template>
+            <v-fab-transition>
+                <v-btn class="fab" color="primary" @click="dialog = true" fab dark fixed bottom right>
+                    <v-icon>mdi-plus</v-icon>
+                </v-btn>
+            </v-fab-transition>
+            <v-dialog v-model="dialog" max-width="600px">
                 <v-card>
                     <v-card-text>
                         <v-container grid-list-md>
