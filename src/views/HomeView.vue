@@ -5,9 +5,10 @@
             <v-toolbar-title class="font-weight-bold">My Lists</v-toolbar-title>
         </v-app-bar>
         <v-navigation-drawer v-model="drawer" absolute temporary>
-            <v-list-item>
-                <v-list-item-content>
-                    <v-list-item-title>Loged in with {{ logedInUserName }}</v-list-item-title>
+            <v-list-item v-if="user">
+                <v-list-item-content class="title">
+                    <v-list-item-title class="title-text">{{ user.displayName }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer></v-spacer>
                 <v-btn icon title="Click to logout" @click="Logout">
@@ -38,49 +39,51 @@
                     </v-responsive>
                 </v-responsive>
                 <v-flex v-else v-for="list in lists" :key="list.id" xs12 md6 lg6 pa-3>
-                    <List v-bind:list="list"></List>
+                    <List :list="list"></List>
                 </v-flex>
             </v-layout>
         </v-container>
         <!-- <v-layout row justify-center> -->
-            <v-btn class="fab" color="primary" @click="dialog = true" fab dark fixed bottom right>
-                <v-icon>mdi-plus</v-icon>
-            </v-btn>
-            <v-dialog v-model="dialog" max-width="600px" persistent>
-                <v-card>
-                    <v-card-text>
-                        <v-container grid-list-md>
-                            <v-layout wrap>
-                                <v-text-field v-on:keyup.enter="createList" v-model="createListName"
-                                    class="create-list-name font-weight-bold text-h5" autofocus label="New List" required>
-                                </v-text-field>
-                            </v-layout>
-                        </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-col class="text-left">
-                            <v-btn color="blue darken-1" @click="resetCreateModal">Close</v-btn>
-                        </v-col>
-                        <v-btn color="green darken-1" @click="createList">Create</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+        <v-btn class="fab" color="primary" @click="dialog = true" fab dark fixed bottom right>
+            <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-dialog v-model="dialog" max-width="600px" persistent>
+            <v-card>
+                <v-card-text>
+                    <v-container grid-list-md>
+                        <v-layout wrap>
+                            <v-text-field v-on:keyup.enter="createList" v-model="createListName"
+                                class="create-list-name font-weight-bold text-h5" autofocus label="New List" required>
+                            </v-text-field>
+                        </v-layout>
+                    </v-container>
+                </v-card-text>
+                <v-card-actions>
+                    <v-col class="text-left">
+                        <v-btn color="blue darken-1" @click="resetCreateModal">Close</v-btn>
+                    </v-col>
+                    <v-btn color="green darken-1" @click="createList">Create</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <!-- </v-layout> -->
     </div>
 </template>
 
 <script>
 import firebase from "firebase";
+import { inject } from 'vue'
 import List from "../components/List.vue";
 export default {
     name: "Home",
     components: {
         List
     },
+    inject: ['messaging'],
     props: ['artists'],
     data() {
         return {
-            logedInUserName: "",
+            user: null,
             loading: true,
             dialog: false,
             notifications: false,
@@ -102,8 +105,8 @@ export default {
     mounted() {
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                this.logedInUserName = user.displayName;
-                this.getLists();
+                this.user = user;
+                this.selectLists();
                 this.saveUser(user)
             }
         })
@@ -119,6 +122,9 @@ export default {
         },
         async createList() {
             try {
+                if (this.createListName.length === 0)
+                    return;
+
                 this.dialog = false;
 
                 await firebase
@@ -129,6 +135,7 @@ export default {
                     .add({
                         title: this.createListName,
                         items: [],
+                        linkedUsers: [],
                         // createdAt: new Date(),
                     });
                 this.createListName = '';
@@ -138,7 +145,7 @@ export default {
                 console.log(err);
             }
         },
-        async getLists() {
+        async selectLists() {
             var listsRef = await firebase
                 .firestore()
                 .collection("users")
@@ -146,12 +153,26 @@ export default {
                 .collection("lists");
 
             listsRef.onSnapshot(snap => {
-                this.list = [];
                 this.lists = [];
                 snap.forEach(doc => {
                     var list = doc.data();
                     list.id = doc.id;
-                    this.lists.push(list);
+
+                    if (list.listRef) {
+                        list.listRef.get()
+                            .then(res => {
+                                list = res.data()
+                                list.id = doc.id;
+                                list.linkedList = true;
+                                list.linkedUsers = [{
+                                    email: `Shared by ${this.user.email}`
+                                }]
+                                this.lists.push(list);
+                            })
+                            .catch(err => console.error(err));
+                    } else {
+                        this.lists.push(list);
+                    }
                 });
                 this.loading = false;
             });
@@ -177,6 +198,17 @@ export default {
 </script>
 
 <style>
+.title {
+    max-width: 85%;
+    overflow: inherit;
+}
+
+.title-text {
+    white-space: pre-wrap;
+    width: max-content;
+    overflow: inherit;
+}
+
 .fab {
     right: 25px !important;
     bottom: 35px !important;

@@ -7,7 +7,8 @@
       <v-toolbar-title class="font-weight-bold">{{ list.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <!-- User dialog-->
-      <v-dialog v-model="userDialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+      <v-dialog v-if="!list.linkedList" v-model="userDialog" fullscreen hide-overlay
+        transition="dialog-bottom-transition">
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="userDialog = true" v-bind="attrs" v-on="on">
             <v-icon>mdi-account-plus</v-icon>
@@ -27,7 +28,7 @@
             </v-toolbar>
           </v-card-title>
           <v-list v-for="(user, i) in users" :key="i">
-            <User :user="user" @InviteUser="InviteUser"></User>
+            <User :user="user" @InviteUser="InviteUser" @UnInviteUser="UnInviteUser"></User>
           </v-list>
         </v-card>
       </v-dialog>
@@ -75,7 +76,7 @@
             </v-toolbar>
           </v-card-title>
           <v-list v-for="(item, i) in items" :key="i">
-            <Item v-if="item.visible" ref="itemComponentRef" :item="item" @afterItemCreated="afterItemCreated"
+            <Item v-if="item.visible" ref="itemComponentRef" :item="item" :hideDelete="isLinked" @afterItemCreated="afterItemCreated"
               @selectItem="selectItem" @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem"
               @deleteItem="deleteItem">
             </Item>
@@ -105,6 +106,8 @@ export default {
   data() {
     return {
       list: null,
+      currentUserID: null,
+      isLinked: false,
       items: [],
       users: [],
       dialog: false,
@@ -116,39 +119,70 @@ export default {
     };
   },
   async mounted() {
+    await this.selectAllUsers();
     await this.getList(this.$route.query.id);
     await this.selectItems();
-    await this.selectAllUsers();
   },
   methods: {
     async getList(id) {
       this.list = [];
+      this.currentUserID = await this.getListUserID(id);
 
       var listRef = firebase
         .firestore()
         .collection("users")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(this.currentUserID)
         .collection("lists")
         .doc(id);
 
       listRef.onSnapshot((snap) => {
-        var list = snap.data();
-        if (!list) return;
+        if (!snap.exists) return;
 
+        var list = snap.data();
         list.id = snap.id;
         this.list = list;
+        list.linkedList = this.isLinked;
+
+        if (!list) return;
 
         this.list.items.sort(function (x, y) {
           return (x.isCompleted === y.isCompleted) ? 0 : x.isCompleted ? 1 : -1;
         });
+
+        if (this.users && this.list.linkedUsers.length > 0) { // update the users selected prop
+          this.list.linkedUsers.forEach(linkedUser => {
+            var user = this.users.find((u) => u.uid === linkedUser.uid)
+            if (user)
+              user.selected = linkedUser.selected;
+          });
+        }
       });
+    },
+    async getListUserID(listID) {
+      var ref = await firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("lists")
+        .doc(listID)
+        .get();
+
+      var refData = ref.data()
+      if (refData.listRef) {
+        var sharedListRef = await refData.listRef.get();
+        this.isLinked = true;
+        return sharedListRef.ref.parent.parent.id;
+      }
+
+      this.isLinked = false;
+      return firebase.auth().currentUser.uid;
     },
     async selectItems() {
       this.items = [];
       var itemsRef = firebase
         .firestore()
         .collection("users")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(this.currentUserID)
         .collection("items");
 
       itemsRef.onSnapshot((snap) => {
@@ -181,13 +215,18 @@ export default {
         .firestore()
         .collection("logedInUsers");
 
-      userRef.onSnapshot((snap) => {
-        snap.forEach((doc) => {
-          var user = doc.data();
+      var ref = await userRef.get();
+      ref.docs.forEach((doc) => {
+        var user = doc.data();
 
-          user.visible = true;
-          this.users.push(user);
-        })
+        if (user.uid === firebase.auth().currentUser.uid) // Dont add the current user to the list
+          return;
+
+        user.visible = true;
+        //user.selected = this.list.linkedUsers.includes(user.uid);
+        user.selected = false;
+
+        this.users.push(user);
       });
     },
     createItem() {
@@ -273,7 +312,7 @@ export default {
       firebase
         .firestore()
         .collection("users")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(this.currentUserID)
         .collection("items").add(data).then(function (res) {
           this.selectItem({ id: res.id });
           this.sortSelectedItems();
@@ -314,7 +353,7 @@ export default {
       await firebase
         .firestore()
         .collection("users")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(this.currentUserID)
         .collection("lists")
         .doc(this.list.id)
         .update({ items: selectedItems });
@@ -330,7 +369,7 @@ export default {
       await firebase
         .firestore()
         .collection("users")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(this.currentUserID)
         .collection("lists")
         .doc(this.list.id)
         .update({ items: this.list.items });
@@ -371,7 +410,7 @@ export default {
       await firebase
         .firestore()
         .collection("users")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(this.currentUserID)
         .collection("lists")
         .doc(this.list.id)
         .update({ items: selectedItems });
@@ -381,8 +420,64 @@ export default {
         return (x.selected === y.selected) ? 0 : x.selected ? -1 : 1;
       });
     },
-    InviteUser() {
+    async InviteUser(user) {
+      var linkedUsers = this.list.linkedUsers;
 
+      if (!linkedUsers.includes(user.uid))
+        linkedUsers.push({
+          uid: user.uid,
+          email: user.email,
+          selected: true
+        });
+
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("lists")
+        .doc(this.list.id)
+        .update({ linkedUsers: linkedUsers });
+
+      await this.addSharedListRefToUser(user);
+    },
+    async UnInviteUser(selectedUser) {
+      var user = this.users.find((u) => u.uid === selectedUser.uid);
+      user.selected = false;
+
+      // Remove the linked user
+      var linkedUsers = this.list.linkedUsers.filter((linkedUser) => {
+        return linkedUser.uid !== selectedUser.uid;
+      });
+
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("lists")
+        .doc(this.list.id)
+        .update({ linkedUsers: linkedUsers });
+
+      await this.RemoveSharedListRefToUser(user);
+    },
+    async addSharedListRefToUser(user) {
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(user.uid)
+        .collection("lists")
+        .doc(this.list.id)
+        .set({
+          listRef: firebase.firestore().doc(`users/${firebase.auth().currentUser.uid}/lists/${this.list.id}`),
+        });
+    },
+    async RemoveSharedListRefToUser(user) {
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(user.uid)
+        .collection("lists")
+        .doc(this.list.id)
+        .delete();
     },
     async deleteItem(item) {
       await firebase

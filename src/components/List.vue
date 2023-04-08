@@ -1,16 +1,9 @@
 <template>
-  <v-card
-    v-if="list"
-    class="list-card pa-3"
-    @click="openList(list.id)"
-    ripple
-    outlined
-    elevation="10"
-  >
+  <v-card v-if="list" class="list-card pa-3" @click="openList(list.id)" ripple outlined elevation="10">
     <v-card-title>
       <h2>{{ list.title }}</h2>
       <v-spacer></v-spacer>
-      <v-btn class="list-options" icon>
+      <v-btn v-if="!list.linkedList" class="list-options" icon>
         <v-bottom-sheet v-model="sheet">
           <template v-slot:activator="{ on, attrs }">
             <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
@@ -18,16 +11,12 @@
           <v-sheet class="text-center" height="200px">
             <v-row>
               <v-col>
-                <v-btn class="mt-6" text color="error" @click="sheet = !sheet"
-                  >close</v-btn
-                >
+                <v-btn class="mt-6" text color="error" @click="sheet = !sheet">close</v-btn>
               </v-col>
             </v-row>
             <v-dialog v-model="dialog" max-width="320">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn v-bind="attrs" v-on="on" class="mt-6" text color="error"
-                  >Delete</v-btn
-                >
+                <v-btn v-bind="attrs" v-on="on" class="mt-6" text color="error">Delete</v-btn>
               </template>
               <v-card>
                 <v-card-title class="text-h5 grey lighten-2">
@@ -42,18 +31,10 @@
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="green darken-1"
-                    text
-                    @click="disagreeDeleteList()"
-                  >
+                  <v-btn color="green darken-1" text @click="disagreeDeleteList()">
                     Disagree
                   </v-btn>
-                  <v-btn
-                    color="red darken-1"
-                    text
-                    @click.stop="deleteList(list.id)"
-                  >
+                  <v-btn color="red darken-1" text @click.stop="deleteList(list.id)">
                     Agree
                   </v-btn>
                 </v-card-actions>
@@ -63,9 +44,14 @@
         </v-bottom-sheet>
       </v-btn>
     </v-card-title>
-    <v-card-text>
+    <v-card-text class="pb-0">
       <ProgressBar :list="list" :showLabel="true"> </ProgressBar>
     </v-card-text>
+    <v-chip-group>
+      <v-chip v-for="(linkedUser, i) in list.linkedUsers" :key="i">
+        {{ linkedUser.email }}
+      </v-chip>
+    </v-chip-group>
   </v-card>
 </template>
 <script>

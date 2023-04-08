@@ -16,7 +16,7 @@
         <v-icon class="remove-icon" large>mdi-minus</v-icon>
       </v-list-item-icon>
     </div>
-    <v-list-item-icon v-if="!item.newItem" class="ml-0" v-on:click.stop="deleteItem(item)">
+    <v-list-item-icon v-if="!item.newItem && hideDelete == false" class="ml-0" v-on:click.stop="deleteItem(item)">
       <v-icon class="remove-icon" large>mdi-delete</v-icon>
     </v-list-item-icon>
   </v-list-item>
@@ -24,7 +24,7 @@
 <script>
 export default {
   name: "Item",
-  props: ["item"],
+  props: ["item", "hideDelete"],
   data() {
     return {
       deg: 0,

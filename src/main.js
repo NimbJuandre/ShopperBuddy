@@ -6,20 +6,19 @@ import firebase from "firebase/app";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import wb from "./registerServiceWorker";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC4OKiNFyVA9iKRwxCIW_VW4Mf5YXPsCSg",
-  authDomain: "shopper-buddy-c27a9.firebaseapp.com",
-  databaseURL: "https://shopper-buddy-c27a9-default-rtdb.firebaseio.com",
-  projectId: "shopper-buddy-c27a9",
-  storageBucket: "shopper-buddy-c27a9.appspot.com",
-  messagingSenderId: "1043445089791",
-  appId: "1:1043445089791:web:7b479e20b9938ed862d3ca",
-};
+Vue.prototype.$messaging = firebase.messaging()
 
-firebase.initializeApp(firebaseConfig);
+navigator.serviceWorker.register('/firebase-messaging-sw.js')
+  .then((registration) => {
+    Vue.prototype.$messaging.useServiceWorker(registration)
+  }).catch(err => {
+    console.log(err)
+  })
+
 
 Vue.config.productionTip = false;
 Vue.prototype.$workbox = wb;
+//Vue.prototype.$messaging = firebaseMessaging
 
 new Vue({
   router,

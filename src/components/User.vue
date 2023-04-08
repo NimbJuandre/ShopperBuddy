@@ -7,8 +7,11 @@
       <v-list-item-subtitle v-text="user.email"></v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action>
-      <v-btn class='invite' icon title="Click to logout" @click="InviteUser(user)">
+      <v-btn v-if="!user.selected" class='link' color="blue" icon title="Click to invite the user to your list" @click="InviteUser(user)">
         INVITE
+      </v-btn>
+      <v-btn v-else class='link' color="red" icon title="Click to uninvite the user to your list" @click="UnInviteUser(user)">
+        UNINVITE
       </v-btn>
     </v-list-item-action>
   </v-list-item>
@@ -19,7 +22,7 @@ export default {
   props: ["user"],
   data() {
     return {
-      deg: 0,
+
     };
   },
   computed: {
@@ -30,6 +33,9 @@ export default {
   methods: {
     InviteUser(user) {
       this.$emit("InviteUser", user);
+    },
+    UnInviteUser(user) {
+      this.$emit("UnInviteUser", user);
     },
   },
 };
@@ -48,16 +54,14 @@ export default {
   border-radius: 50%;
   font-size: x-large;
   width: 36px;
-  place-content: center;
-  padding-right: 3px;
+  place-content: space-around;
   margin-right: 10px !important;
 }
 
-.invite {
+.link {
   border-radius: 25px;
-  background-color: #1976d2;
   height: 25px !important;
-  width: 70px !important;
+  width: 80px !important;
   color: white !important;
 }
 </style>

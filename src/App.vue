@@ -6,11 +6,16 @@
 
 <script>
 import firebase from "firebase";
+import { provide } from 'vue'
+import firebaseMessaging from './firebase'
 import AppContent from "./components/AppContent.vue";
 export default {
   name: "App",
   components: {
     AppContent,
+  },
+  provide: {
+    messaging: firebaseMessaging
   },
   data: () => ({
     authenticated: true,
