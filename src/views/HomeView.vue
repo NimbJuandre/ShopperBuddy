@@ -136,6 +136,7 @@ export default {
                         title: this.createListName,
                         items: [],
                         linkedUsers: [],
+                        ownerEmail: this.user.email
                         // createdAt: new Date(),
                     });
                 this.createListName = '';
@@ -165,7 +166,7 @@ export default {
                                 list.id = doc.id;
                                 list.linkedList = true;
                                 list.linkedUsers = [{
-                                    email: `Shared by ${this.user.email}`
+                                    email: `Shared by ${list.ownerEmail}`
                                 }]
                                 this.lists.push(list);
                             })

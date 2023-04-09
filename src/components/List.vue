@@ -88,7 +88,6 @@ export default {
   methods: {
     openList(id) {
       this.$router.push({ path: "/ListView", query: { id: id } });
-      // this.$router.push({ path: '/ListView' })
     },
     async deleteList(id) {
       await firebase
@@ -101,6 +100,20 @@ export default {
 
       this.dialog = false;
       this.sheet = false;
+
+      if (this.list.linkedUsers.length > 0)
+        this.removeLinkedListRef()
+    },
+    removeLinkedListRef() {
+      this.list.linkedUsers.forEach(user => {
+        firebase
+          .firestore()
+          .collection("users")
+          .doc(user.uid)
+          .collection("lists")
+          .doc(this.list.id)
+          .delete();
+      });
     },
     disagreeDeleteList() {
       this.dialog = false;
