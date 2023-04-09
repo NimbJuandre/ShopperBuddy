@@ -76,9 +76,9 @@
             </v-toolbar>
           </v-card-title>
           <v-list v-for="(item, i) in items" :key="i">
-            <Item v-if="item.visible" ref="itemComponentRef" :item="item" :hideDelete="isLinked" @afterItemCreated="afterItemCreated"
-              @selectItem="selectItem" @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem"
-              @deleteItem="deleteItem">
+            <Item v-if="item.visible" ref="itemComponentRef" :item="item" :hideDelete="isLinked"
+              @afterItemCreated="afterItemCreated" @selectItem="selectItem"
+              @minusSelectedItemCount="minusSelectedItemCount" @deselectItem="deselectItem" @deleteItem="deleteItem">
             </Item>
           </v-list>
         </v-card>

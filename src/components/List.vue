@@ -69,22 +69,6 @@ export default {
       sheet: false,
     };
   },
-  computed: {
-    // a computed getter
-    totalItemCompleted() {
-      // `this` points to the component instance
-      var completedItems = this.list.items.filter((i) => i.isCompleted).length;
-      return completedItems;
-    },
-    progressBarPercentage() {
-      return parseInt(
-        Math.round((this.list.items.length / this.totalItemCompleted) * 100)
-      );
-    },
-    progressBarText() {
-      return `${this.totalItemCompleted}/${this.list.items.length}`;
-    },
-  },
   methods: {
     openList(id) {
       this.$router.push({ path: "/ListView", query: { id: id } });
