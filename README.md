@@ -2,7 +2,7 @@
 
  Create and share shopping lists with your buddy
  
- ![ShopperBuddy demo](media/ShopperBuddy Demo.gif)
+ ![ShopperBuddy demo](media/ShopperBuddy_Demo.gif)
  
 ## Share your list with your buddy
 
