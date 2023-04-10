@@ -136,7 +136,7 @@ export default {
                         title: this.createListName,
                         items: [],
                         linkedUsers: [],
-                        ownerEmail: this.user.email
+                        ownerEmail: this.user.email,
                         // createdAt: new Date(),
                     });
                 this.createListName = '';
@@ -174,6 +174,19 @@ export default {
                     } else {
                         this.lists.push(list);
                     }
+
+                    this.lists.forEach(list => { // This snapshot is needed to update each list.
+                        var listRef = firebase
+                            .firestore()
+                            .collection("users")
+                            .doc(this.currentUserID)
+                            .collection("lists")
+                            .doc(list.id);
+
+                        listRef.onSnapshot((snap) => { 
+                            list = snap.data();
+                        });
+                    });
                 });
                 this.loading = false;
             });

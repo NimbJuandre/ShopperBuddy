@@ -135,6 +135,9 @@ export default {
         .collection("lists")
         .doc(id);
 
+      var initialListRef = await listRef.get();
+      this.list = initialListRef.data();
+
       listRef.onSnapshot((snap) => {
         if (!snap.exists) return;
 
@@ -143,7 +146,17 @@ export default {
         this.list = list;
         list.linkedList = this.isLinked;
 
-        if (!list) return;
+        // Get the the item selected and count props when the item exists in the list.items
+        this.items.forEach(item => {
+          var addedItem = this.list.items.find((i) => i.id === item.id);
+          if (addedItem) {
+            item.selected = true;
+            item.count = addedItem.count;
+          } else {
+            item.selected = false;
+            item.count = 0;
+          }
+        });
 
         this.list.items.sort(function (x, y) {
           return (x.isCompleted === y.isCompleted) ? 0 : x.isCompleted ? 1 : -1;
@@ -192,13 +205,15 @@ export default {
           item.visible = true;
 
           // Get the the item selected and count props when the item exists in the list.items
-          var addedItem = this.list.items.find((i) => i.id === item.id);
-          if (addedItem) {
-            item.selected = true;
-            item.count = addedItem.count;
-          } else {
-            item.selected = false;
-            item.count = 0;
+          if (this.list.items) {
+            var addedItem = this.list.items.find((i) => i.id === item.id);
+            if (addedItem) {
+              item.selected = true;
+              item.count = addedItem.count;
+            } else {
+              item.selected = false;
+              item.count = 0;
+            }
           }
 
           // Only add the item if i does not exists in the item array
