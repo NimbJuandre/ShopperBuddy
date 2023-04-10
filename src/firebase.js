@@ -2,13 +2,13 @@ import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC4OKiNFyVA9iKRwxCIW_VW4Mf5YXPsCSg",
-    authDomain: "shopper-buddy-c27a9.firebaseapp.com",
-    databaseURL: "https://shopper-buddy-c27a9-default-rtdb.firebaseio.com",
-    projectId: "shopper-buddy-c27a9",
-    storageBucket: "shopper-buddy-c27a9.appspot.com",
-    messagingSenderId: "1043445089791",
-    appId: "1:1043445089791:web:7b479e20b9938ed862d3ca",
+    apiKey: process.env.VUE_APP_APIKEY,
+    authDomain: process.env.VUE_APP_AUTHDOMAIN,
+    databaseURL: process.env.VUE_APP_DATABASEURL,
+    projectId: process.env.VUE_APP_PROJECTID,
+    storageBucket: process.env.VUE_APP_STORAGEBUCKET,
+    messagingSenderId: process.env.VUE_APP_MESSAGINGSENDERID,
+    appId: process.env.VUE_APP_APPID,
 };
 
 firebase.initializeApp(firebaseConfig)

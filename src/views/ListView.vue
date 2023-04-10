@@ -7,7 +7,7 @@
       <v-toolbar-title class="font-weight-bold">{{ list.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <!-- User dialog-->
-      <v-dialog v-if="!list.linkedList" v-model="userDialog" fullscreen hide-overlay
+      <v-dialog v-if="list && !list.linkedList" v-model="userDialog" fullscreen hide-overlay
         transition="dialog-bottom-transition">
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="userDialog = true" v-bind="attrs" v-on="on">
