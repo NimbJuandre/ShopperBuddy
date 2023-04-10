@@ -1,6 +1,12 @@
 # ShopperBuddy
 
- Create and share shopping lists with your buddy
+  Create and share shopping lists with your buddy
+  
+## Demo
+
+ [Live site](https://shopper-buddy-c27a9.web.app/)
+ 
+## Preview
  
  ![ShopperBuddy demo](media/ShopperBuddy_Demo.gif)
  
