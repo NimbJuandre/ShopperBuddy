@@ -6,7 +6,7 @@
  
 ## Share your list with your buddy
 
-![ShopperBuddy sharing demo](media/ShopperBuddy Live Sharing.gif)
+![ShopperBuddy sharing demo](media/ShopperBuddy_Live_Sharing.gif)
 
 ## Firebase Setup
 
