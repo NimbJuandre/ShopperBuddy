@@ -1,6 +1,5 @@
-# ShopperBuddy
-
-  Create and share shopping lists with your buddy
+# ShopperBuddy - Create and share shopping lists with your buddy.
+  Vue 2 PWA app created with Firebase authentication, firestore database and hosting.
   
 ## Demo
 
