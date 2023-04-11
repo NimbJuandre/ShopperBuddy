@@ -37,6 +37,27 @@
       <ProgressBar v-if="list.items" :list="list" :showLabel="false">
       </ProgressBar>
     </div>
+    <!-- Note dialog -->
+    <v-dialog v-model="itemNoteDialog" :retain-focus="false" transition="dialog-bottom-transition">
+      <v-card rounded>
+        <v-card-title class="card-title pa-0">
+          <v-toolbar fixed class="item-add-toolbar" color="primary">
+            <v-btn icon dark @click="itemNoteDialog = false">
+              <v-icon>mdi-arrow-left</v-icon>
+            </v-btn>
+            <v-toolbar-title class="toolbar-title pl-1">Add a note</v-toolbar-title>
+            <v-toolbar-items>
+              <v-btn icon dark @click="updateItemNote()">
+                <v-icon>mdi-content-save</v-icon>
+              </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+        </v-card-title>
+        <v-text-field v-model="note" autofocus background-color="white" rounded clearable
+          v-on:keyup.enter="updateItemNote()" class="add-item-input mt-1 text-h6" label="Add a custom note for this item"
+          single-line></v-text-field>
+      </v-card>
+    </v-dialog>
     <v-list>
       <v-list-item @click="updateListItemStatus($event, item)" :class="{ isCompleted: item.isCompleted }"
         class="list-item" v-for="(item, i) in list.items" :key="i" ripple>
@@ -45,8 +66,13 @@
             :ripple="false"></v-checkbox>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title v-text="item.name + (item.count > 1 ? ' x ' + item.count : '')"></v-list-item-title>
+          <v-list-item-title class="item-title"
+            v-text="item.name + (item.count > 1 ? ' x ' + item.count : '')"></v-list-item-title>
+          <v-list-item-subtitle class="item-title" v-if="item.note" v-text="item.note"></v-list-item-subtitle>
         </v-list-item-content>
+        <v-list-item-icon class="ml-0" title="Click to update the note" v-on:click.stop="openItemNoteDialog(item)">
+          <v-icon large>mdi-note</v-icon>
+        </v-list-item-icon>
         <v-list-item-icon class="ml-0" v-on:click.stop="removeItem(item)">
           <v-icon class="remove-icon" large>mdi-delete</v-icon>
         </v-list-item-icon>
@@ -112,10 +138,13 @@ export default {
       users: [],
       dialog: false,
       userDialog: false,
+      itemNoteDialog: false,
       searchText: "",
       userSearchText: '',
       tab: null,
       applyChanges: false,
+      note: '',
+      noteItem: null,
     };
   },
   async mounted() {
@@ -356,12 +385,13 @@ export default {
         return i.selected === true;
       });
 
-      this.list.items.forEach(function (item) { // Updte the item's count and selected props
+      this.list.items.forEach(function (item) { // Update the item's count and selected props
         var existingItem = selectedItems.find((i) => i.id === item.id);
 
         if (existingItem) {
-          existingItem.count = item.count;
+          //existingItem.count = item.count;
           existingItem.isCompleted = item.isCompleted;
+          existingItem.note = item.note || '';
         }
       });
 
@@ -510,6 +540,27 @@ export default {
       this.getList(this.list.id);
       this.selectItems();
     },
+    updateItemNote() {
+      var selectedItem = this.list.items.find((i) => i.id === this.noteItem.id);
+      selectedItem.note = this.note;
+
+      firebase
+        .firestore()
+        .collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("lists")
+        .doc(this.list.id)
+        .update({ items: this.list.items });
+
+      this.note = '';
+      this.noteItem = null;
+      this.itemNoteDialog = false;
+    },
+    openItemNoteDialog(item) {
+      this.note = item.note;
+      this.noteItem = item;
+      this.itemNoteDialog = true;
+    }
   },
 };
 </script>
@@ -545,6 +596,10 @@ export default {
   box-shadow: 0px 1px 4px -2px rgb(171 149 149 / 50%);
   -webkit-box-shadow: 0px 1px 4px -2px rgb(171 149 149 / 50%);
   color: transparent !important;
+}
+
+.item-title {
+  white-space: break-spaces;
 }
 
 .v-list-item__title {
