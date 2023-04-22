@@ -48,7 +48,8 @@
       <ProgressBar :list="list" :showLabel="true"> </ProgressBar>
     </v-card-text>
     <v-chip-group>
-      <v-chip v-for="(linkedUser, i) in list.linkedUsers" :key="i">
+      <v-chip close @click:close="removeSharedListRefToUser(linkedUser)" v-for="(linkedUser, i) in list.linkedUsers"
+        :key="i">
         {{ linkedUser.email }}
       </v-chip>
     </v-chip-group>
@@ -103,6 +104,9 @@ export default {
       this.dialog = false;
       this.sheet = false;
     },
+    removeSharedListRefToUser(linkedUser) {
+      this.$emit("removeSharedListRefToUser", linkedUser, this.list);
+    }
   },
 };
 </script>

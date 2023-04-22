@@ -513,6 +513,7 @@ export default {
         .doc(this.list.id)
         .set({
           listRef: firebase.firestore().doc(`users/${firebase.auth().currentUser.uid}/lists/${this.list.id}`),
+          linkedListID: this.list.id,
         });
     },
     async RemoveSharedListRefToUser(user) {

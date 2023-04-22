@@ -39,7 +39,7 @@
                     </v-responsive>
                 </v-responsive>
                 <v-flex v-else v-for="list in lists" :key="list.id" xs12 md6 lg6 pa-3>
-                    <List :list="list"></List>
+                    <List :list="list" @removeSharedListRefToUser="removeSharedListRefToUser"></List>
                 </v-flex>
             </v-layout>
         </v-container>
@@ -136,7 +136,10 @@ export default {
                         title: this.createListName,
                         items: [],
                         linkedUsers: [],
-                        ownerEmail: this.user.email,
+                        owner: {
+                            email: this.user.email,
+                            uid: this.user.uid
+                        }
                         // createdAt: new Date(),
                     });
                 this.createListName = '';
@@ -166,7 +169,8 @@ export default {
                                 list.id = doc.id;
                                 list.linkedList = true;
                                 list.linkedUsers = [{
-                                    email: `Shared by ${list.ownerEmail}`
+                                    email: `Shared by ${list.owner.email}`,
+                                    uid: this.user.uid
                                 }]
                                 this.lists.push(list);
                             })
@@ -183,7 +187,7 @@ export default {
                             .collection("lists")
                             .doc(list.id);
 
-                        listRef.onSnapshot((snap) => { 
+                        listRef.onSnapshot((snap) => {
                             list = snap.data();
                         });
                     });
@@ -206,6 +210,32 @@ export default {
         resetCreateModal() {
             this.dialog = false;
             this.createListName = '';
+        },
+        async removeSharedListRefToUser(user, list) {
+            var originalListRef = firebase
+                .firestore()
+                .collection("users")
+                .doc((list.linkedList ? list.owner.uid : firebase.auth().currentUser.uid))
+                .collection("lists")
+                .doc(list.id)
+            var originalListGet = await originalListRef.get();
+            var originalListData = originalListGet.data()
+            var linkedUsers = originalListData.linkedUsers.filter(function (linkedUser) {
+                //return user.uid !== firebase.auth().currentUser.uid
+                return linkedUser.uid !== user.uid
+            });
+
+            // Remove the user from the shared by user's linkedUsers array
+            originalListRef.update({ linkedUsers: linkedUsers });
+
+            // Remove the list ref from this user
+            var originalListRef = await firebase
+                .firestore()
+                .collection("users")
+                .doc((list.linkedList ? firebase.auth().currentUser.uid : user.uid))
+                .collection("lists")
+                .doc(list.id)
+                .delete();
         }
     },
 }
