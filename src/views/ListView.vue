@@ -361,10 +361,7 @@ export default {
           this.selectItem({ id: res.id });
           this.sortSelectedItems();
         }.bind(this));
-
-      this.searchText = "";
-      this.removeNewItems();
-      this.showAllItems();
+      this.resetSearchItems();
     },
     selectItem(item) {
       var item = this.items.find((i) => i.id === item.id);
@@ -372,6 +369,7 @@ export default {
       item.selected = true;
       item.count++;
       this.applyChanges = true;
+      this.resetSearchItems();
     },
     minusSelectedItemCount(item) {
       var item = this.items.find((i) => i.id === item.id);
@@ -433,6 +431,7 @@ export default {
     resetSearchItems() {
       this.removeNewItems();
       this.showAllItems();
+      this.searchText = '';
     },
     resetSearchUsers() {
       this.showAllUsers();
@@ -534,12 +533,12 @@ export default {
         .doc(item.id)
         .delete();
 
-      this.removeItem(item);
-      this.refresh();
+      await this.removeItem(item);
+      await this.refresh();
     },
-    refresh() {
-      this.getList(this.list.id);
-      this.selectItems();
+    async refresh() {
+      await this.getList(this.list.id);
+      await this.selectItems();
     },
     updateItemNote() {
       var selectedItem = this.list.items.find((i) => i.id === this.noteItem.id);
