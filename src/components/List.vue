@@ -11,35 +11,62 @@
           <v-sheet class="text-center" height="200px">
             <v-row>
               <v-col>
-                <v-btn class="mt-6" text color="error" @click="sheet = !sheet">close</v-btn>
+                <v-dialog v-model="dialogComplete" max-width="320">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn v-bind="attrs" v-on="on" class="mt-6" text color="error">Complete</v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title class="text-h5 grey lighten-2">
+                      Complete this list?
+                    </v-card-title>
+
+                    <v-card-text>
+                      Do you wish to complete this list?
+                    </v-card-text>
+
+                    <v-divider></v-divider>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="green darken-1" text @click="disagreeListDialog()">
+                        Disagree
+                      </v-btn>
+                      <v-btn color="red darken-1" text @click.stop="completeList(list.id)">
+                        Agree
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </v-col>
             </v-row>
-            <v-dialog v-model="dialog" max-width="320">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn v-bind="attrs" v-on="on" class="mt-6" text color="error">Delete</v-btn>
-              </template>
-              <v-card>
-                <v-card-title class="text-h5 grey lighten-2">
-                  Delete this list?
-                </v-card-title>
+            <v-col>
+              <v-dialog v-model="dialogDelete" max-width="320">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" class="mt-6" text color="error">Delete</v-btn>
+                </template>
+                <v-card>
+                  <v-card-title class="text-h5 grey lighten-2">
+                    Delete this list?
+                  </v-card-title>
 
-                <v-card-text>
-                  Do you wish to delete this list permanently
-                </v-card-text>
+                  <v-card-text>
+                    Do you wish to delete this list permanently
+                  </v-card-text>
 
-                <v-divider></v-divider>
+                  <v-divider></v-divider>
 
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" text @click="disagreeDeleteList()">
-                    Disagree
-                  </v-btn>
-                  <v-btn color="red darken-1" text @click.stop="deleteList(list.id)">
-                    Agree
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" text @click="disagreeListDialog()">
+                      Disagree
+                    </v-btn>
+                    <v-btn color="red darken-1" text @click.stop="deleteList(list.id)">
+                      Agree
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-col>
           </v-sheet>
         </v-bottom-sheet>
       </v-btn>
@@ -66,7 +93,8 @@ export default {
   },
   data() {
     return {
-      dialog: false,
+      dialogComplete: false,
+      dialogDelete: false,
       sheet: false,
     };
   },
@@ -83,11 +111,22 @@ export default {
         .doc(id)
         .delete();
 
-      this.dialog = false;
+      this.dialogComplete = false;
+      this.dialogDelete = false;
       this.sheet = false;
 
       if (this.list.linkedUsers.length > 0)
         this.removeLinkedListRef()
+    },
+    async completeList(id) {
+      var _self = this;
+
+      _self.$confetti.start();
+      await this.deleteList(id);
+
+      setTimeout(function () {
+        _self.$confetti.stop();
+      }, 1000);
     },
     removeLinkedListRef() {
       this.list.linkedUsers.forEach(user => {
@@ -100,8 +139,9 @@ export default {
           .delete();
       });
     },
-    disagreeDeleteList() {
-      this.dialog = false;
+    disagreeListDialog() {
+      this.dialogComplete = false;
+      this.dialogDelete = false;
       this.sheet = false;
     },
     removeSharedListRefToUser(linkedUser) {

@@ -5,8 +5,10 @@ import vuetify from "./plugins/vuetify";
 import firebase from "firebase/app";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import wb from "./registerServiceWorker";
+import vueConfetti from 'vue-confetti'
 
 Vue.prototype.$messaging = firebase.messaging()
+Vue.use(vueConfetti);
 
 navigator.serviceWorker.register('/firebase-messaging-sw.js')
   .then((registration) => {

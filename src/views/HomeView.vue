@@ -32,13 +32,13 @@
         </v-navigation-drawer>
         <v-container fluid grid-list-md>
             <v-layout row wrap>
-                <v-responsive class="mx-auto" v-if="loading">
+                <v-responsive v-if="loading" class="mx-auto">
                     <v-responsive class="ma-3" height="125" v-for="index in 5" :key="index">
                         <v-skeleton-loader ref="skeleton" :boilerplate="false" type="image" :tile=true
                             class="mx-auto"></v-skeleton-loader>
                     </v-responsive>
                 </v-responsive>
-                <v-flex v-else v-for="list in lists" :key="list.id" xs12 md6 lg6 pa-3>
+                <v-flex v-if="!loading" v-for="list in lists" :key="list.id" xs12 md6 lg6 pa-3>
                     <List :list="list" @removeSharedListRefToUser="removeSharedListRefToUser"></List>
                 </v-flex>
             </v-layout>
@@ -72,7 +72,6 @@
 
 <script>
 import firebase from "firebase";
-import { inject } from 'vue'
 import List from "../components/List.vue";
 export default {
     name: "Home",
@@ -221,7 +220,6 @@ export default {
             var originalListGet = await originalListRef.get();
             var originalListData = originalListGet.data()
             var linkedUsers = originalListData.linkedUsers.filter(function (linkedUser) {
-                //return user.uid !== firebase.auth().currentUser.uid
                 return linkedUser.uid !== user.uid
             });
 
@@ -236,7 +234,7 @@ export default {
                 .collection("lists")
                 .doc(list.id)
                 .delete();
-        }
+        },
     },
 }
 </script>
